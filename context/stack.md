@@ -3,8 +3,8 @@
 ## Frontend
 
 - React 19
+- Next 16
 - TypeScript
-- Vite
 
 ---
 
@@ -13,12 +13,6 @@
 - TailwindCSS
 - Tailwind Merge
 - Class Variance Authority
-
----
-
-## Routing
-
-- React Router
 
 ---
 
@@ -135,14 +129,6 @@ VITE_APP_NAME
 VITE_AUTH_STORAGE_KEY
 
 VITE_ENABLE_ANALYTICS
-
----
-
-## Deployment
-
-- Vercel
-- Docker
-- Github Actions
 
 ---
 
