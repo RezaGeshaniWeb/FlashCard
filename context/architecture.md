@@ -2,7 +2,7 @@
 
 ## Architecture Style
 
-Feature-Based Architecture
+Feature-Based Architecture with Next.js 16 App Router
 
 Each feature owns its:
 
@@ -10,8 +10,9 @@ Each feature owns its:
 - hooks
 - services
 - types
-- pages
 - utils
+
+Route segments live under `app/`.
 
 ---
 
@@ -30,10 +31,6 @@ features/
 hooks/
 
 layouts/
-
-pages/
-
-routes/
 
 services/
 
@@ -57,8 +54,6 @@ components/
 
 hooks/
 
-pages/
-
 services/
 
 types/
@@ -71,7 +66,7 @@ utils/
 
 ### Presentation
 
-Pages
+App Router pages (`app/`)
 
 Layouts
 
@@ -83,11 +78,13 @@ Components
 
 Hooks
 
-Store
+Store (Client Components)
 
 Validation
 
 Permissions
+
+Server Actions
 
 ---
 
@@ -95,13 +92,17 @@ Permissions
 
 API Services
 
-React Query
+TanStack Query
+
+Server Components / fetch
 
 Axios
 
+Route Handlers
+
 ---
 
-## Routing
+## Routing (App Router)
 
 /
 
@@ -113,9 +114,9 @@ dashboard
 
 decks
 
-decks/:id
+decks/[id]
 
-study/:deckId
+study/[deckId]
 
 statistics
 
@@ -123,7 +124,7 @@ profile
 
 settings
 
-404
+not-found
 
 ---
 
@@ -137,7 +138,11 @@ Receive JWT
 
 ↓
 
-Store token
+Store token (secure cookie preferred)
+
+↓
+
+Middleware validates session
 
 ↓
 
@@ -151,11 +156,11 @@ Navigate dashboard
 
 ## State Management
 
-React Query
+Server Components / Server Cache
 
 ↓
 
-Server Cache
+TanStack Query
 
 ↓
 
@@ -173,11 +178,11 @@ Local Component State
 
 ## API Pattern
 
-Page
+Page (Server or Client)
 
 ↓
 
-Hook
+Hook / Server Action
 
 ↓
 
@@ -185,7 +190,7 @@ Service
 
 ↓
 
-Axios Client
+Axios Client or Route Handler
 
 ↓
 
@@ -227,9 +232,9 @@ Error State
 
 ---
 
-## Error Boundaries
+## Error Handling
 
-Application
+error.tsx (segment)
 
 ↓
 
@@ -241,7 +246,11 @@ Feature
 
 ---
 
-## Lazy Loading
+## Loading & Code Splitting
+
+loading.tsx for route segments
+
+dynamic() for heavy Client Components
 
 Dashboard
 
@@ -257,17 +266,17 @@ Admin (future)
 
 ## Performance
 
-Memoized Components
+Server Components by default
 
-Lazy Routes
-
-Image Optimization
+next/image for Image Optimization
 
 Request Caching
 
 Code Splitting
 
-Prefetch Next Pages
+Link Prefetch
+
+Suspense Boundaries
 
 ---
 

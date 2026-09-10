@@ -2,8 +2,8 @@
 
 ## Frontend
 
+- Next.js 16 (App Router)
 - React 19
-- Next 16
 - TypeScript
 
 ---
@@ -21,6 +21,7 @@
 ### Server State
 
 - TanStack Query
+- Server Components / Server Actions
 
 ### Client State
 
@@ -38,12 +39,15 @@
 ## API
 
 - Axios
+- Server Actions
+- Route Handlers
 
 ---
 
 ## Authentication
 
 - JWT Authentication
+- Next.js Middleware
 
 ---
 
@@ -105,13 +109,11 @@
 src/
 
 - app/
-- pages/
-- features/
 - components/
+- features/
 - services/
 - hooks/
 - store/
-- routes/
 - layouts/
 - types/
 - utils/
@@ -122,13 +124,13 @@ src/
 
 ## Environment Variables
 
-VITE_API_URL
+NEXT_PUBLIC_API_URL
 
-VITE_APP_NAME
+NEXT_PUBLIC_APP_NAME
 
-VITE_AUTH_STORAGE_KEY
+AUTH_STORAGE_KEY
 
-VITE_ENABLE_ANALYTICS
+NEXT_PUBLIC_ENABLE_ANALYTICS
 
 ---
 

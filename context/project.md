@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-FlashMaster is a modern flashcard learning platform built with React, TypeScript and TailwindCSS.
+FlashMaster is a modern flashcard learning platform built with Next.js, TypeScript and TailwindCSS.
 
 The goal of the project is to provide an effective learning experience using active recall and spaced repetition techniques.
 
