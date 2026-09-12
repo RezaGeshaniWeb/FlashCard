@@ -3,6 +3,7 @@
 import type { UserSettings } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Switch } from '@/components/ui/Switch';
+import { useT } from '@/i18n';
 
 export interface NotificationSettingsProps {
   settings: UserSettings;
@@ -15,12 +16,14 @@ export function NotificationSettings({
   onUpdate,
   isSaving = false,
 }: NotificationSettingsProps) {
+  const t = useT();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notifications</CardTitle>
+        <CardTitle>{t('settings.notificationsTitle')}</CardTitle>
         <CardDescription>
-          Reminders for reviews, goals, and achievements.
+          {t('settings.notificationsDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -30,8 +33,8 @@ export function NotificationSettings({
           onCheckedChange={(checked) =>
             onUpdate({ notificationsEnabled: checked })
           }
-          label="Enable notifications"
-          description="Daily review reminders and goal alerts"
+          label={t('settings.enableNotifications')}
+          description={t('settings.enableNotificationsDesc')}
         />
       </CardContent>
     </Card>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -11,22 +12,27 @@ import { Input } from '@/components/ui/Input';
 import { ROUTES } from '@/constants';
 import { useRegister } from '@/features/auth/hooks/useAuth';
 import type { RegisterFormValues } from '@/features/auth/types';
+import { useT, type TranslateFn } from '@/i18n';
 
-const registerSchema = z
-  .object({
-    name: z.string().trim().min(1, 'Name is required').max(100),
-    email: z.string().trim().email('Enter a valid email'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string().min(1, 'Confirm your password'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+function createRegisterSchema(t: TranslateFn) {
+  return z
+    .object({
+      name: z.string().trim().min(1, t('auth.nameRequired')).max(100),
+      email: z.string().trim().email(t('auth.emailInvalid')),
+      password: z.string().min(8, t('auth.passwordMin')),
+      confirmPassword: z.string().min(1, t('auth.confirmRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('auth.passwordsMismatch'),
+      path: ['confirmPassword'],
+    });
+}
 
 export function RegisterForm() {
   const router = useRouter();
   const registerMutation = useRegister();
+  const t = useT();
+  const registerSchema = useMemo(() => createRegisterSchema(t), [t]);
 
   const {
     register,
@@ -53,57 +59,67 @@ export function RegisterForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
-      <Input
-        label="Name"
-        autoComplete="name"
-        required
-        error={errors.name?.message}
-        {...register('name')}
-      />
-      <Input
-        label="Email"
-        type="email"
-        autoComplete="email"
-        required
-        error={errors.email?.message}
-        {...register('email')}
-      />
-      <Input
-        label="Password"
-        type="password"
-        autoComplete="new-password"
-        required
-        showPasswordToggle
-        hint="At least 8 characters"
-        error={errors.password?.message}
-        {...register('password')}
-      />
-      <Input
-        label="Confirm password"
-        type="password"
-        autoComplete="new-password"
-        required
-        showPasswordToggle
-        error={errors.confirmPassword?.message}
-        {...register('confirmPassword')}
-      />
-      <Button
-        type="submit"
-        loading={registerMutation.isPending}
-        className="w-full"
-      >
-        Create account
-      </Button>
-      <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{' '}
-        <Link
-          href={ROUTES.LOGIN}
-          className="font-medium text-primary hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1 text-center">
+        <h2 className="text-xl font-semibold text-foreground">
+          {t('auth.registerTitle')}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {t('auth.registerSubtitle')}
+        </p>
+      </div>
+      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+        <Input
+          label={t('auth.name')}
+          autoComplete="name"
+          required
+          error={errors.name?.message}
+          {...register('name')}
+        />
+        <Input
+          label={t('auth.email')}
+          type="email"
+          autoComplete="email"
+          required
+          error={errors.email?.message}
+          {...register('email')}
+        />
+        <Input
+          label={t('auth.password')}
+          type="password"
+          autoComplete="new-password"
+          required
+          showPasswordToggle
+          hint={t('auth.passwordHint')}
+          error={errors.password?.message}
+          {...register('password')}
+        />
+        <Input
+          label={t('auth.confirmPassword')}
+          type="password"
+          autoComplete="new-password"
+          required
+          showPasswordToggle
+          error={errors.confirmPassword?.message}
+          {...register('confirmPassword')}
+        />
+        <Button
+          type="submit"
+          loading={registerMutation.isPending}
+          className="w-full"
         >
-          Sign in
-        </Link>
-      </p>
-    </form>
+          {t('auth.createAccount')}
+        </Button>
+        <p className="text-center text-sm text-muted-foreground">
+          {t('auth.hasAccount')}{' '}
+          <Link
+            href={ROUTES.LOGIN}
+            className="font-medium text-primary hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+          >
+            {t('auth.signIn')}
+          </Link>
+        </p>
+      </form>
+    </div>
   );
 }

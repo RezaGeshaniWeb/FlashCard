@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,6 +13,7 @@ import {
   useCreateDeck,
   useUpdateDeck,
 } from '@/features/decks/hooks/useDecks';
+import { useT, type TranslateFn } from '@/i18n';
 import type { Deck, DeckWithCounts } from '@/types';
 
 const DECK_COLORS = [
@@ -26,14 +27,16 @@ const DECK_COLORS = [
   '#16a34a',
 ] as const;
 
-const deckFormSchema = z.object({
-  title: z.string().trim().min(1, 'Title is required').max(200),
-  description: z.string().trim().max(2000),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Pick a color'),
-  tags: z.string(),
-});
+function createDeckFormSchema(t: TranslateFn) {
+  return z.object({
+    title: z.string().trim().min(1, t('decks.titleRequired')).max(200),
+    description: z.string().trim().max(2000),
+    color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, t('decks.pickColor')),
+    tags: z.string(),
+  });
+}
 
-type DeckFormValues = z.infer<typeof deckFormSchema>;
+type DeckFormValues = z.infer<ReturnType<typeof createDeckFormSchema>>;
 
 export interface DeckFormDialogProps {
   open: boolean;
@@ -54,9 +57,11 @@ export function DeckFormDialog({
   onOpenChange,
   deck,
 }: DeckFormDialogProps) {
+  const t = useT();
   const createDeck = useCreateDeck();
   const updateDeck = useUpdateDeck();
   const isEdit = Boolean(deck);
+  const deckFormSchema = useMemo(() => createDeckFormSchema(t), [t]);
 
   const {
     register,
@@ -109,38 +114,40 @@ export function DeckFormDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? 'Edit deck' : 'Create deck'}
+      title={isEdit ? t('decks.editTitle') : t('decks.createTitle')}
       description={
-        isEdit
-          ? 'Update title, description, color, or tags.'
-          : 'Add a new deck to organize your flashcards.'
+        isEdit ? t('decks.editDescription') : t('decks.createDescription')
       }
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
         <Input
-          label="Title"
+          label={t('decks.title')}
           required
           error={errors.title?.message}
           {...register('title')}
         />
         <Textarea
-          label="Description"
+          label={t('decks.description')}
           rows={3}
           error={errors.description?.message}
           {...register('description')}
         />
         <fieldset>
           <legend className="mb-1.5 text-sm font-medium text-foreground">
-            Color
+            {t('decks.color')}
           </legend>
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Deck color">
+          <div
+            className="flex flex-wrap gap-2"
+            role="radiogroup"
+            aria-label={t('decks.colorAria')}
+          >
             {DECK_COLORS.map((color) => (
               <button
                 key={color}
                 type="button"
                 role="radio"
                 aria-checked={selectedColor === color}
-                aria-label={`Color ${color}`}
+                aria-label={`${t('decks.color')} ${color}`}
                 className="h-8 w-8 rounded-full border-2 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 style={{
                   backgroundColor: color,
@@ -159,9 +166,8 @@ export function DeckFormDialog({
           ) : null}
         </fieldset>
         <Input
-          label="Tags"
-          hint="Comma-separated"
-          placeholder="spanish, verbs"
+          label={t('decks.tags')}
+          placeholder={t('decks.tagsPlaceholder')}
           error={errors.tags?.message}
           {...register('tags')}
         />
@@ -172,10 +178,10 @@ export function DeckFormDialog({
             onClick={() => onOpenChange(false)}
             disabled={pending}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={pending}>
-            {isEdit ? 'Save changes' : 'Create deck'}
+            {isEdit ? t('common.saveChanges') : t('decks.submitCreate')}
           </Button>
         </DialogFooter>
       </form>

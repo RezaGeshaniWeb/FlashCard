@@ -11,6 +11,7 @@ import {
   type UpdateProfileInput,
 } from '@/features/auth/services/auth-service';
 import { ROUTES } from '@/constants';
+import { useT } from '@/i18n';
 
 export const settingsKeys = {
   all: ['settings'] as const,
@@ -19,6 +20,7 @@ export const settingsKeys = {
 };
 
 export function useSettings() {
+  const t = useT();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -36,52 +38,55 @@ export function useSettings() {
     mutationFn: (input: Partial<UserSettings>) => settingsService.update(input),
     onSuccess: (data) => {
       queryClient.setQueryData(settingsKeys.settings(), data);
-      toast.success('Settings saved');
+      toast.success(t('settings.settingsSaved'));
     },
-    onError: () => toast.error('Could not save settings'),
+    onError: () => toast.error(t('settings.settingsFailed')),
   });
 
   const updateProfile = useMutation({
     mutationFn: (input: UpdateProfileInput) => authService.updateProfile(input),
     onSuccess: (user: PublicUser) => {
       queryClient.setQueryData(settingsKeys.me(), user);
-      toast.success('Profile updated');
+      toast.success(t('auth.profileUpdated'));
     },
-    onError: () => toast.error('Could not update profile'),
+    onError: () => toast.error(t('auth.profileUpdateFailed')),
   });
 
   const changePassword = useMutation({
     mutationFn: (input: ChangePasswordInput) =>
       authService.changePassword(input),
-    onSuccess: () => toast.success('Password changed'),
-    onError: () => toast.error('Could not change password'),
+    onSuccess: () => toast.success(t('auth.passwordChanged')),
+    onError: () => toast.error(t('auth.passwordChangeFailed')),
   });
 
   const deleteAccount = useMutation({
     mutationFn: () => authService.deleteAccount(),
     onSuccess: () => {
-      toast.success('Account deleted');
+      toast.success(t('settings.accountDeleted'));
       queryClient.clear();
       router.replace(ROUTES.LOGIN);
       router.refresh();
     },
-    onError: () => toast.error('Could not delete account'),
+    onError: () => toast.error(t('settings.accountDeleteFailed')),
   });
 
   const exportData = useMutation({
     mutationFn: () => settingsService.exportData(),
-    onError: () => toast.error('Export failed'),
+    onError: () => toast.error(t('settings.exportFailed')),
   });
 
   const importData = useMutation({
     mutationFn: (input: ImportDataInput) => settingsService.importData(input),
     onSuccess: (result) => {
       toast.success(
-        `Imported ${result.decksImported} decks and ${result.cardsImported} cards`,
+        t('settings.importSuccess', {
+          decks: result.decksImported,
+          cards: result.cardsImported,
+        }),
       );
       void queryClient.invalidateQueries();
     },
-    onError: () => toast.error('Import failed'),
+    onError: () => toast.error(t('settings.importFailed')),
   });
 
   return {

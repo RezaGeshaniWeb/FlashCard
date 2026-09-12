@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,15 +18,19 @@ import {
 } from '@/components/ui/Card';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useT, type TranslateFn } from '@/i18n';
 import { formatDate } from '@/utils/dates';
 
-const profileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(80),
-});
+function createProfileSchema(t: TranslateFn) {
+  return z.object({
+    name: z.string().min(2, t('profile.nameMin')).max(80),
+  });
+}
 
-type ProfileForm = z.infer<typeof profileSchema>;
+type ProfileForm = z.infer<ReturnType<typeof createProfileSchema>>;
 
 export function ProfileView() {
+  const t = useT();
   const {
     user,
     isLoading,
@@ -34,6 +39,8 @@ export function ProfileView() {
     updateProfile,
     changePassword,
   } = useSettings();
+
+  const profileSchema = useMemo(() => createProfileSchema(t), [t]);
 
   const {
     register,
@@ -54,15 +61,19 @@ export function ProfileView() {
   }
 
   if (isError || !user) {
-    return <ErrorState title="Could not load profile" onRetry={refetch} />;
+    return (
+      <ErrorState title={t('profile.loadErrorTitle')} onRetry={refetch} />
+    );
   }
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t('profile.title')}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Manage your account details and password.
+          {t('profile.subtitle')}
         </p>
       </div>
 
@@ -72,7 +83,10 @@ export function ProfileView() {
           <div>
             <CardTitle>{user.name}</CardTitle>
             <CardDescription>
-              {user.email} · Joined {formatDate(user.createdAt)}
+              {t('profile.joined', {
+                email: user.email,
+                date: formatDate(user.createdAt),
+              })}
             </CardDescription>
           </div>
         </CardHeader>
@@ -85,17 +99,17 @@ export function ProfileView() {
             noValidate
           >
             <Input
-              label="Display name"
+              label={t('profile.displayName')}
               error={errors.name?.message}
               autoComplete="name"
               {...register('name')}
             />
             <Input
-              label="Email"
+              label={t('profile.email')}
               value={user.email}
               disabled
               readOnly
-              hint="Email cannot be changed in this version"
+              hint={t('profile.emailHint')}
             />
             <Button
               type="submit"
@@ -103,7 +117,7 @@ export function ProfileView() {
               disabled={!isDirty}
               className="w-fit"
             >
-              Save profile
+              {t('profile.saveProfile')}
             </Button>
           </form>
         </CardContent>

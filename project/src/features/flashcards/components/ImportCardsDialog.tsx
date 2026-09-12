@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,19 +10,16 @@ import { Dialog, DialogFooter } from '@/components/ui/Dialog';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useImportFlashcards } from '@/features/flashcards/hooks/useFlashcards';
+import { useT, type TranslateFn } from '@/i18n';
 
-const importSchema = z.object({
-  format: z.enum(['csv', 'json', 'markdown']),
-  content: z.string().min(1, 'Paste or upload content to import'),
-});
+function createImportSchema(t: TranslateFn) {
+  return z.object({
+    format: z.enum(['csv', 'json', 'markdown']),
+    content: z.string().min(1, t('flashcards.contentRequired')),
+  });
+}
 
-type ImportFormValues = z.infer<typeof importSchema>;
-
-const FORMAT_OPTIONS = [
-  { value: 'csv', label: 'CSV (front,back)' },
-  { value: 'json', label: 'JSON' },
-  { value: 'markdown', label: 'Markdown' },
-];
+type ImportFormValues = z.infer<ReturnType<typeof createImportSchema>>;
 
 const PLACEHOLDERS: Record<ImportFormValues['format'], string> = {
   csv: 'front,back\nhola,hello\ngracias,thank you',
@@ -41,8 +38,19 @@ export function ImportCardsDialog({
   onOpenChange,
   deckId,
 }: ImportCardsDialogProps) {
+  const t = useT();
   const importCards = useImportFlashcards(deckId);
   const [fileName, setFileName] = useState<string | null>(null);
+  const importSchema = useMemo(() => createImportSchema(t), [t]);
+
+  const formatOptions = useMemo(
+    () => [
+      { value: 'csv', label: t('flashcards.formatCsv') },
+      { value: 'json', label: t('flashcards.formatJson') },
+      { value: 'markdown', label: t('flashcards.formatMarkdown') },
+    ],
+    [t],
+  );
 
   const {
     register,
@@ -93,14 +101,14 @@ export function ImportCardsDialog({
           setFileName(null);
         }
       }}
-      title="Import cards"
-      description="Paste CSV, JSON, or Markdown, or upload a file."
+      title={t('flashcards.importTitle')}
+      description={t('flashcards.importDescription')}
       className="max-w-xl"
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
         <Select
-          label="Format"
-          options={FORMAT_OPTIONS}
+          label={t('flashcards.format')}
+          options={formatOptions}
           error={errors.format?.message}
           {...register('format')}
         />
@@ -109,24 +117,26 @@ export function ImportCardsDialog({
             htmlFor="import-file"
             className="text-sm font-medium text-foreground"
           >
-            Upload file
+            {t('flashcards.uploadFile')}
           </label>
           <input
             id="import-file"
             type="file"
             accept=".csv,.json,.md,.markdown,.txt,text/csv,application/json,text/markdown"
-            className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground hover:file:opacity-90"
-            aria-label="Upload import file"
+            className="block w-full text-sm text-muted-foreground file:me-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground hover:file:opacity-90"
+            aria-label={t('flashcards.uploadFile')}
             onChange={(e) => {
               void onFileChange(e.target.files?.[0] ?? null);
             }}
           />
           {fileName ? (
-            <p className="text-xs text-muted-foreground">Loaded: {fileName}</p>
+            <p className="text-xs text-muted-foreground">
+              {t('flashcards.loaded', { fileName })}
+            </p>
           ) : null}
         </div>
         <Textarea
-          label="Content"
+          label={t('flashcards.content')}
           required
           rows={10}
           placeholder={PLACEHOLDERS[format]}
@@ -140,10 +150,10 @@ export function ImportCardsDialog({
             onClick={() => onOpenChange(false)}
             disabled={importCards.isPending}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={importCards.isPending}>
-            Import
+            {t('flashcards.import')}
           </Button>
         </DialogFooter>
       </form>

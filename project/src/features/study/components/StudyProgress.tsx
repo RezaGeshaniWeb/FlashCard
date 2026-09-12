@@ -1,4 +1,7 @@
+'use client';
+
 import { Progress } from '@/components/ui/Progress';
+import { useT } from '@/i18n';
 import type { StudySessionStats } from '../hooks/useStudySession';
 
 export interface StudyProgressProps {
@@ -8,6 +11,7 @@ export interface StudyProgressProps {
 }
 
 export function StudyProgress({ current, total, stats }: StudyProgressProps) {
+  const t = useT();
   const value = total === 0 ? 0 : current;
   const accuracy =
     stats.reviewed === 0
@@ -19,24 +23,31 @@ export function StudyProgress({ current, total, stats }: StudyProgressProps) {
       <Progress
         value={value}
         max={Math.max(total, 1)}
-        label={`Card ${Math.min(current, total)} of ${total}`}
+        label={t('study.cardOf', {
+          current: Math.min(current, total),
+          total,
+        })}
         showValue={false}
       />
       <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
         <span>
-          Reviewed:{' '}
-          <strong className="text-foreground tabular-nums">{stats.reviewed}</strong>
+          {t('study.reviewed')}{' '}
+          <strong className="text-foreground tabular-nums">
+            {stats.reviewed}
+          </strong>
         </span>
         <span>
-          Correct:{' '}
+          {t('study.correct')}{' '}
           <strong className="text-success tabular-nums">{stats.correct}</strong>
         </span>
         <span>
-          Incorrect:{' '}
-          <strong className="text-danger tabular-nums">{stats.incorrect}</strong>
+          {t('study.incorrect')}{' '}
+          <strong className="text-danger tabular-nums">
+            {stats.incorrect}
+          </strong>
         </span>
         <span>
-          Accuracy:{' '}
+          {t('study.accuracy')}{' '}
           <strong className="text-foreground tabular-nums">{accuracy}%</strong>
         </span>
       </div>

@@ -129,6 +129,7 @@
   --color-neutral-muted: var(--neutral-muted);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-fa: var(--font-kalameh), Tahoma, 'Segoe UI', sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --shadow-sm: var(--elevation-sm);
@@ -163,6 +164,16 @@ body {
     background-color 0.2s ease,
     color 0.2s ease,
     border-color 0.2s ease;
+}
+
+html[lang='fa'],
+html[data-locale='fa'] {
+  --font-sans: var(--font-fa);
+}
+
+html[lang='fa'] body,
+html[data-locale='fa'] body {
+  font-family: var(--font-fa);
 }
 
 /* Focus ring — accessible default for interactive elements */

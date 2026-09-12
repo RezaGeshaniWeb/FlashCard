@@ -11,8 +11,10 @@ import { Dialog } from '@/components/ui/Dialog';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Spinner } from '@/components/ui/Loader';
+import { useT } from '@/i18n';
 
 export function GlobalSearch() {
+  const t = useT();
   const router = useRouter();
   const open = useUiStore((s) => s.globalSearchOpen);
   const setOpen = useUiStore((s) => s.setGlobalSearchOpen);
@@ -43,8 +45,8 @@ export function GlobalSearch() {
     <Dialog
       open={open}
       onOpenChange={setOpen}
-      title="Search"
-      description="Find decks and flashcards. Press Esc to close."
+      title={t('search.title')}
+      description={t('search.description')}
       className="max-w-xl"
     >
       <div className="flex flex-col gap-4">
@@ -53,8 +55,8 @@ export function GlobalSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onClear={() => setQuery('')}
-          placeholder="Search decks and cards…"
-          aria-label="Global search"
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.aria')}
         />
 
         {isLoading ? (
@@ -67,10 +69,12 @@ export function GlobalSearch() {
           <div className="max-h-80 space-y-4 overflow-y-auto">
             <section>
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Decks ({results.decks.length})
+                {t('search.decksHeading', { count: results.decks.length })}
               </h3>
               {results.decks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No decks found</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('search.noDecksFound')}
+                </p>
               ) : (
                 <ul className="flex flex-col gap-1">
                   {results.decks.map((deck) => (
@@ -78,7 +82,7 @@ export function GlobalSearch() {
                       <button
                         type="button"
                         onClick={() => go(ROUTES.DECK_DETAIL(deck.id))}
-                        className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm hover:bg-muted"
+                        className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-start text-sm hover:bg-muted"
                       >
                         <Layers className="h-4 w-4 shrink-0 text-primary" aria-hidden />
                         <span className="truncate font-medium">{deck.title}</span>
@@ -91,10 +95,12 @@ export function GlobalSearch() {
 
             <section>
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Cards ({results.cards.length})
+                {t('search.cardsHeading', { count: results.cards.length })}
               </h3>
               {results.cards.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No cards found</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('search.noCardsFound')}
+                </p>
               ) : (
                 <ul className="flex flex-col gap-1">
                   {results.cards.map((card) => (
@@ -102,7 +108,7 @@ export function GlobalSearch() {
                       <button
                         type="button"
                         onClick={() => go(ROUTES.DECK_DETAIL(card.deckId))}
-                        className="flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm hover:bg-muted"
+                        className="flex w-full items-start gap-3 rounded-md px-2 py-2 text-start text-sm hover:bg-muted"
                       >
                         <FileText
                           className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
@@ -125,8 +131,10 @@ export function GlobalSearch() {
 
             {results.decks.length === 0 && results.cards.length === 0 ? (
               <EmptyState
-                title="No results"
-                description={`Nothing matched “${debounced}”.`}
+                title={t('search.noResultsTitle')}
+                description={t('search.noResultsDescription', {
+                  query: debounced,
+                })}
                 icon={<Search className="h-6 w-6" aria-hidden />}
                 className="border-0 py-6"
               />
@@ -136,7 +144,7 @@ export function GlobalSearch() {
 
         {!isLoading && debounced.length < 2 ? (
           <p className="text-center text-sm text-muted-foreground">
-            Type at least 2 characters. Shortcut:{' '}
+            {t('search.typeHint')}{' '}
             <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-xs">
               Ctrl
             </kbd>{' '}
@@ -148,13 +156,13 @@ export function GlobalSearch() {
         ) : null}
 
         <p className="text-center text-xs text-muted-foreground">
-          Or browse{' '}
+          {t('search.orBrowse')}{' '}
           <Link
             href={ROUTES.DECKS}
             className="font-medium text-primary hover:underline"
             onClick={() => setOpen(false)}
           >
-            all decks
+            {t('search.allDecks')}
           </Link>
         </p>
       </div>

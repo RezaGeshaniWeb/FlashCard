@@ -9,16 +9,22 @@ import { RecentDecksWidget } from './RecentDecksWidget';
 import { RecentActivityWidget } from './RecentActivityWidget';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useT } from '@/i18n';
 
 export function DashboardView() {
   const { stats, decks, settings, isLoading, isError, refetch } =
     useDashboard();
+  const t = useT();
 
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-36 w-full" label="Loading widget" />
+          <Skeleton
+            key={i}
+            className="h-36 w-full"
+            label={t('dashboard.loadingWidget')}
+          />
         ))}
       </div>
     );
@@ -27,8 +33,8 @@ export function DashboardView() {
   if (isError || !stats) {
     return (
       <ErrorState
-        title="Could not load dashboard"
-        description="Check your connection and try again."
+        title={t('dashboard.loadErrorTitle')}
+        description={t('dashboard.loadErrorDescription')}
         onRetry={refetch}
       />
     );
@@ -40,10 +46,10 @@ export function DashboardView() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Dashboard
+          {t('dashboard.title')}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Your reviews, streak, and recent progress at a glance.
+          {t('dashboard.subtitle')}
         </p>
       </div>
 

@@ -1,9 +1,11 @@
 'use client';
 
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Menu, Moon, Search, Sun } from 'lucide-react';
 import { APP_NAME } from '@/constants';
 import { useUiStore } from '@/store/ui-store';
+import { useT } from '@/i18n';
 import { Button } from '@/components/ui/Button';
 import { SearchInput } from '@/components/ui/SearchInput';
 
@@ -12,6 +14,7 @@ export function AppHeader() {
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
   const globalSearchOpen = useUiStore((s) => s.globalSearchOpen);
   const setGlobalSearchOpen = useUiStore((s) => s.setGlobalSearchOpen);
+  const t = useT();
 
   const isDark = (resolvedTheme ?? theme) === 'dark';
 
@@ -23,7 +26,7 @@ export function AppHeader() {
         size="icon"
         className="h-9 w-9 lg:hidden"
         onClick={toggleSidebar}
-        aria-label="Open sidebar"
+        aria-label={t('nav.openSidebar')}
       >
         <Menu className="h-5 w-5" aria-hidden />
       </Button>
@@ -32,23 +35,24 @@ export function AppHeader() {
         {APP_NAME}
       </p>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ms-auto flex items-center gap-2">
         <div className="hidden w-64 md:block">
           <SearchInput
             readOnly
-            placeholder="Search… ⌘K"
-            aria-label="Open search"
+            placeholder={t('header.searchPlaceholder')}
+            aria-label={t('header.openSearch')}
             onFocus={() => setGlobalSearchOpen(true)}
             onClick={() => setGlobalSearchOpen(true)}
           />
         </div>
+        <LanguageSwitcher className="hidden sm:inline-flex" />
         <Button
           type="button"
           variant="ghost"
           size="icon"
           className="h-9 w-9 md:hidden"
           onClick={() => setGlobalSearchOpen(true)}
-          aria-label="Open search"
+          aria-label={t('header.openSearch')}
           aria-expanded={globalSearchOpen}
         >
           <Search className="h-5 w-5" aria-hidden />
@@ -59,7 +63,9 @@ export function AppHeader() {
           size="icon"
           className="h-9 w-9"
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label={
+            isDark ? t('header.switchToLight') : t('header.switchToDark')
+          }
         >
           {isDark ? (
             <Sun className="h-5 w-5" aria-hidden />

@@ -11,6 +11,7 @@ import { Loader } from '@/components/ui/Loader';
 import { ROUTES } from '@/constants';
 import { useDeck } from '@/features/decks/hooks/useDecks';
 import { FlashcardList } from '@/features/flashcards/components/FlashcardList';
+import { useT } from '@/i18n';
 import { cn } from '@/utils/cn';
 
 interface DeckDetailPageProps {
@@ -20,16 +21,17 @@ interface DeckDetailPageProps {
 export default function DeckDetailPage({ params }: DeckDetailPageProps) {
   const { id } = use(params);
   const { data: deck, isLoading, isError, refetch } = useDeck(id);
+  const t = useT();
 
   if (isLoading) {
-    return <Loader label="Loading deck…" fullPage />;
+    return <Loader label={t('decks.loadingDeck')} fullPage />;
   }
 
   if (isError || !deck) {
     return (
       <ErrorState
-        title="Deck not found"
-        description="This deck may have been deleted or you do not have access."
+        title={t('decks.notFoundTitle')}
+        description={t('decks.notFoundDescription')}
         onRetry={() => void refetch()}
       />
     );
@@ -43,7 +45,7 @@ export default function DeckDetailPage({ params }: DeckDetailPageProps) {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
-          Back to decks
+          {t('decks.backToDecks')}
         </Link>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -65,18 +67,18 @@ export default function DeckDetailPage({ params }: DeckDetailPageProps) {
             ) : null}
             <div className="flex flex-wrap gap-2">
               <Badge variant="neutral">
-                {deck.stats.totalCards} cards
+                {t('common.cards', { count: deck.stats.totalCards })}
               </Badge>
               <Badge
                 variant={deck.stats.dueCards > 0 ? 'warning' : 'success'}
               >
-                {deck.stats.dueCards} due
+                {t('common.due', { count: deck.stats.dueCards })}
               </Badge>
               {deck.isFavorite ? (
-                <Badge variant="default">Favorite</Badge>
+                <Badge variant="default">{t('common.favorite')}</Badge>
               ) : null}
               {deck.isArchived ? (
-                <Badge variant="outline">Archived</Badge>
+                <Badge variant="outline">{t('common.archived')}</Badge>
               ) : null}
             </div>
           </div>
@@ -84,10 +86,10 @@ export default function DeckDetailPage({ params }: DeckDetailPageProps) {
           <Link
             href={ROUTES.STUDY(deck.id)}
             className={cn(buttonVariants({ size: 'lg' }), 'shrink-0')}
-            aria-label={`Study ${deck.title}`}
+            aria-label={t('decks.studyAria', { title: deck.title })}
           >
             <BookOpen className="h-4 w-4" aria-hidden />
-            Study
+            {t('decks.study')}
           </Link>
         </div>
       </div>
@@ -97,7 +99,7 @@ export default function DeckDetailPage({ params }: DeckDetailPageProps) {
           id="cards-heading"
           className="text-lg font-semibold text-foreground"
         >
-          Cards
+          {t('decks.cardsHeading')}
         </h2>
         <FlashcardList deckId={deck.id} />
       </section>

@@ -13,6 +13,7 @@ import {
   deckService,
   type ListDecksParams,
 } from '@/features/decks/services/deck-service';
+import { useT } from '@/i18n';
 import type {
   CreateDeckInput,
   Deck,
@@ -64,15 +65,16 @@ export function useCreateDeck(): UseMutationResult<
   CreateDeckInput
 > {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: (input: CreateDeckInput) => deckService.create(input),
     onSuccess: () => {
       invalidateDeckQueries(queryClient);
-      toast.success('Deck created');
+      toast.success(t('decks.created'));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not create deck'));
+      toast.error(getErrorMessage(error, t('decks.createFailed')));
     },
   });
 }
@@ -83,6 +85,7 @@ export function useUpdateDeck(): UseMutationResult<
   { id: string; input: UpdateDeckInput }
 > {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: ({ id, input }) => deckService.update(id, input),
@@ -91,55 +94,60 @@ export function useUpdateDeck(): UseMutationResult<
       void queryClient.invalidateQueries({
         queryKey: deckKeys.detail(deck.id),
       });
-      toast.success('Deck updated');
+      toast.success(t('decks.updated'));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not update deck'));
+      toast.error(getErrorMessage(error, t('decks.updateFailed')));
     },
   });
 }
 
 export function useDeleteDeck(): UseMutationResult<void, Error, string> {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: (id: string) => deckService.remove(id),
     onSuccess: () => {
       invalidateDeckQueries(queryClient);
-      toast.success('Deck deleted');
+      toast.success(t('decks.deleted'));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not delete deck'));
+      toast.error(getErrorMessage(error, t('decks.deleteFailed')));
     },
   });
 }
 
 export function useArchiveDeck(): UseMutationResult<Deck, Error, string> {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: (id: string) => deckService.toggleArchive(id),
     onSuccess: (deck) => {
       invalidateDeckQueries(queryClient);
-      toast.success(deck.isArchived ? 'Deck archived' : 'Deck restored');
+      toast.success(
+        deck.isArchived ? t('decks.archivedToast') : t('decks.restored'),
+      );
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not archive deck'));
+      toast.error(getErrorMessage(error, t('decks.archiveFailed')));
     },
   });
 }
 
 export function useDuplicateDeck(): UseMutationResult<Deck, Error, string> {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: (id: string) => deckService.duplicate(id),
     onSuccess: () => {
       invalidateDeckQueries(queryClient);
-      toast.success('Deck duplicated');
+      toast.success(t('decks.duplicated'));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not duplicate deck'));
+      toast.error(getErrorMessage(error, t('decks.duplicateFailed')));
     },
   });
 }
@@ -150,6 +158,7 @@ export function useFavoriteDeck(): UseMutationResult<
   { id: string; isFavorite: boolean }
 > {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: ({ id, isFavorite }) =>
@@ -157,11 +166,11 @@ export function useFavoriteDeck(): UseMutationResult<
     onSuccess: (deck) => {
       invalidateDeckQueries(queryClient);
       toast.success(
-        deck.isFavorite ? 'Added to favorites' : 'Removed from favorites',
+        deck.isFavorite ? t('decks.favorited') : t('decks.unfavorited'),
       );
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not update favorite'));
+      toast.error(getErrorMessage(error, t('decks.favoriteFailed')));
     },
   });
 }

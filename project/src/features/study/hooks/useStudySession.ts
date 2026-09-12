@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Flashcard, ReviewRating, StudyMode } from '@/types';
+import { useT } from '@/i18n';
 import { studyService } from '../services/study-service';
 import { isCorrectRating, shuffleCards } from '../utils/study-helpers';
 
@@ -42,6 +43,7 @@ export function useStudySession({
   order,
   timedSeconds = 0,
 }: UseStudySessionOptions) {
+  const t = useT();
   const queryClient = useQueryClient();
   const [queue, setQueue] = useState<Flashcard[]>([]);
   const [index, setIndex] = useState(0);
@@ -83,8 +85,8 @@ export function useStudySession({
     void studyService
       .session(deckId, { action: 'start', mode })
       .then((session) => setSessionId(session.id))
-      .catch(() => toast.error('Could not start study session'));
-  }, [cardsQuery.data, deckId, mode]);
+      .catch(() => toast.error(t('study.startFailed')));
+  }, [cardsQuery.data, deckId, mode, t]);
 
   useEffect(() => {
     if (mode !== 'timed' || timedSeconds <= 0 || phase !== 'study') return;
@@ -152,9 +154,13 @@ export function useStudySession({
           c.id === card.id ? { ...c, isBookmarked: card.isBookmarked } : c,
         ),
       );
-      toast.success(card.isBookmarked ? 'Bookmarked' : 'Bookmark removed');
+      toast.success(
+        card.isBookmarked
+          ? t('flashcards.bookmarkedToast')
+          : t('flashcards.bookmarkRemoved'),
+      );
     },
-    onError: () => toast.error('Could not update bookmark'),
+    onError: () => toast.error(t('flashcards.bookmarkFailed')),
   });
 
   const notesMutation = useMutation({
@@ -164,9 +170,9 @@ export function useStudySession({
       setQueue((prev) =>
         prev.map((c) => (c.id === card.id ? { ...c, notes: card.notes } : c)),
       );
-      toast.success('Notes saved');
+      toast.success(t('study.notesSaved'));
     },
-    onError: () => toast.error('Could not save notes'),
+    onError: () => toast.error(t('study.notesFailed')),
   });
 
   const flip = useCallback(() => setFlipped((f) => !f), []);
@@ -202,7 +208,7 @@ export function useStudySession({
           rating,
         });
       } catch {
-        toast.error('Review failed to save');
+        toast.error(t('study.reviewFailed'));
       }
 
       setFlipped(false);
@@ -222,6 +228,7 @@ export function useStudySession({
       isLast,
       reviewMutation,
       endSession,
+      t,
     ],
   );
 
@@ -242,13 +249,13 @@ export function useStudySession({
     setQueue((q) => shuffleCards(q));
     setIndex(0);
     setFlipped(false);
-    toast.message('Deck shuffled');
-  }, []);
+    toast.message(t('study.shuffled'));
+  }, [t]);
 
   const retryIncorrect = useCallback(() => {
     const retryCards = queue.filter((c) => incorrectIds.includes(c.id));
     if (retryCards.length === 0) {
-      toast.message('No incorrect cards to retry');
+      toast.message(t('study.noIncorrectRetry'));
       return;
     }
     setQueue(retryCards);
@@ -257,7 +264,7 @@ export function useStudySession({
     setIncorrectIds([]);
     setPhase('retry');
     setStats(EMPTY_STATS);
-  }, [queue, incorrectIds]);
+  }, [queue, incorrectIds, t]);
 
   const restart = useCallback(() => {
     void queryClient.invalidateQueries({

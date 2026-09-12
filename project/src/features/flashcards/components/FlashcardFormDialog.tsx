@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,38 +15,42 @@ import {
   useCreateFlashcard,
   useUpdateFlashcard,
 } from '@/features/flashcards/hooks/useFlashcards';
+import { useT, type TranslateFn } from '@/i18n';
 import type { Flashcard } from '@/types';
 
-const cardFormSchema = z.object({
-  front: z.string().trim().min(1, 'Front is required'),
-  back: z.string().trim().min(1, 'Back is required'),
-  hint: z.string().trim(),
-  example: z.string().trim(),
-  tags: z.string(),
-  difficulty: z.enum(DIFFICULTY_LEVELS),
-  notes: z.string().trim(),
-  imageUrl: z
-    .string()
-    .trim()
-    .refine(
-      (value) => value === '' || z.string().url().safeParse(value).success,
-      'Enter a valid image URL',
-    ),
-  audioUrl: z
-    .string()
-    .trim()
-    .refine(
-      (value) => value === '' || z.string().url().safeParse(value).success,
-      'Enter a valid audio URL',
-    ),
-});
+function createCardFormSchema(t: TranslateFn) {
+  return z.object({
+    front: z.string().trim().min(1, t('flashcards.frontRequired')),
+    back: z.string().trim().min(1, t('flashcards.backRequired')),
+    hint: z.string().trim(),
+    example: z.string().trim(),
+    tags: z.string(),
+    difficulty: z.enum(DIFFICULTY_LEVELS),
+    notes: z.string().trim(),
+    imageUrl: z
+      .string()
+      .trim()
+      .refine(
+        (value) => value === '' || z.string().url().safeParse(value).success,
+        t('flashcards.imageUrlInvalid'),
+      ),
+    audioUrl: z
+      .string()
+      .trim()
+      .refine(
+        (value) => value === '' || z.string().url().safeParse(value).success,
+        t('flashcards.audioUrlInvalid'),
+      ),
+  });
+}
 
-type CardFormValues = z.infer<typeof cardFormSchema>;
+type CardFormValues = z.infer<ReturnType<typeof createCardFormSchema>>;
 
-const DIFFICULTY_OPTIONS = DIFFICULTY_LEVELS.map((level) => ({
-  value: level,
-  label: level.charAt(0).toUpperCase() + level.slice(1),
-}));
+const DIFFICULTY_LABEL_KEYS = {
+  beginner: 'common.difficultyBeginner',
+  intermediate: 'common.difficultyIntermediate',
+  advanced: 'common.difficultyAdvanced',
+} as const;
 
 export interface FlashcardFormDialogProps {
   open: boolean;
@@ -58,7 +62,7 @@ export interface FlashcardFormDialogProps {
 function parseTags(value: string): string[] {
   return value
     .split(',')
-    .map((t) => t.trim())
+    .map((tag) => tag.trim())
     .filter(Boolean)
     .slice(0, 20);
 }
@@ -69,9 +73,20 @@ export function FlashcardFormDialog({
   deckId,
   card,
 }: FlashcardFormDialogProps) {
+  const t = useT();
   const createCard = useCreateFlashcard(deckId);
   const updateCard = useUpdateFlashcard();
   const isEdit = Boolean(card);
+  const cardFormSchema = useMemo(() => createCardFormSchema(t), [t]);
+
+  const difficultyOptions = useMemo(
+    () =>
+      DIFFICULTY_LEVELS.map((level) => ({
+        value: level,
+        label: t(DIFFICULTY_LABEL_KEYS[level]),
+      })),
+    [t],
+  );
 
   const {
     register,
@@ -135,24 +150,24 @@ export function FlashcardFormDialog({
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? 'Edit card' : 'Add card'}
+      title={isEdit ? t('flashcards.editTitle') : t('flashcards.addTitle')}
       description={
         isEdit
-          ? 'Update the front, back, and optional details.'
-          : 'Create a new flashcard in this deck.'
+          ? t('flashcards.editDescription')
+          : t('flashcards.addDescription')
       }
       className="max-w-xl"
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
         <Textarea
-          label="Front"
+          label={t('flashcards.front')}
           required
           rows={3}
           error={errors.front?.message}
           {...register('front')}
         />
         <Textarea
-          label="Back"
+          label={t('flashcards.back')}
           required
           rows={3}
           error={errors.back?.message}
@@ -160,46 +175,46 @@ export function FlashcardFormDialog({
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Hint"
+            label={t('flashcards.hint')}
             error={errors.hint?.message}
             {...register('hint')}
           />
           <Select
-            label="Difficulty"
-            options={DIFFICULTY_OPTIONS}
+            label={t('flashcards.difficulty')}
+            options={difficultyOptions}
             error={errors.difficulty?.message}
             {...register('difficulty')}
           />
         </div>
         <Input
-          label="Example"
+          label={t('flashcards.example')}
           error={errors.example?.message}
           {...register('example')}
         />
         <Input
-          label="Tags"
-          hint="Comma-separated"
+          label={t('common.tags')}
+          placeholder={t('decks.tagsPlaceholder')}
           error={errors.tags?.message}
           {...register('tags')}
         />
         <Textarea
-          label="Notes"
+          label={t('flashcards.notes')}
           rows={2}
           error={errors.notes?.message}
           {...register('notes')}
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Image URL"
+            label={t('flashcards.imageUrl')}
             type="url"
-            placeholder="https://"
+            placeholder={t('flashcards.urlPlaceholder')}
             error={errors.imageUrl?.message}
             {...register('imageUrl')}
           />
           <Input
-            label="Audio URL"
+            label={t('flashcards.audioUrl')}
             type="url"
-            placeholder="https://"
+            placeholder={t('flashcards.urlPlaceholder')}
             error={errors.audioUrl?.message}
             {...register('audioUrl')}
           />
@@ -211,10 +226,10 @@ export function FlashcardFormDialog({
             onClick={() => onOpenChange(false)}
             disabled={pending}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={pending}>
-            {isEdit ? 'Save changes' : 'Add card'}
+            {isEdit ? t('common.saveChanges') : t('flashcards.addCard')}
           </Button>
         </DialogFooter>
       </form>

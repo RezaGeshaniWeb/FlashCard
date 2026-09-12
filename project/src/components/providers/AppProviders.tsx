@@ -4,9 +4,25 @@ import { useState, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { LocaleProvider, useLocale } from '@/i18n';
 
 export interface AppProvidersProps {
   children: ReactNode;
+}
+
+function AppToaster() {
+  const { dir } = useLocale();
+  return (
+    <Toaster
+      position={dir === 'rtl' ? 'top-left' : 'top-right'}
+      dir={dir}
+      richColors
+      closeButton
+      toastOptions={{
+        className: 'font-sans',
+      }}
+    />
+  );
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
@@ -25,17 +41,12 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" disableTransitionOnChange={false}>
-        {children}
-        <Toaster
-          position="top-right"
-          richColors
-          closeButton
-          toastOptions={{
-            className: 'font-sans',
-          }}
-        />
-      </ThemeProvider>
+      <LocaleProvider>
+        <ThemeProvider defaultTheme="system" disableTransitionOnChange={false}>
+          {children}
+          <AppToaster />
+        </ThemeProvider>
+      </LocaleProvider>
     </QueryClientProvider>
   );
 }

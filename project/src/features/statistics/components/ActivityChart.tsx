@@ -13,12 +13,14 @@ import type { DailyActivity } from '@/types';
 import { formatDate } from '@/utils/dates';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { useT } from '@/i18n';
 
 export interface ActivityChartProps {
   activity: DailyActivity[];
 }
 
 export function ActivityChart({ activity }: ActivityChartProps) {
+  const t = useT();
   const data = activity.slice(-30).map((d) => ({
     date: formatDate(d.date, 'MMM d'),
     reviews: d.reviews,
@@ -28,13 +30,13 @@ export function ActivityChart({ activity }: ActivityChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Daily activity</CardTitle>
+        <CardTitle>{t('statistics.dailyActivity')}</CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
           <EmptyState
-            title="No activity data"
-            description="Study sessions will populate this chart."
+            title={t('statistics.noActivityData')}
+            description={t('statistics.activityHint')}
             className="border-0 py-10"
           />
         ) : (
@@ -73,7 +75,7 @@ export function ActivityChart({ activity }: ActivityChartProps) {
                   stroke="var(--primary)"
                   fill="url(#reviewsFill)"
                   strokeWidth={2}
-                  name="Reviews"
+                  name={t('statistics.reviews')}
                 />
               </AreaChart>
             </ResponsiveContainer>

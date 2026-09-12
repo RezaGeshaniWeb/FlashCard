@@ -33,6 +33,7 @@ import {
   useDuplicateDeck,
   useFavoriteDeck,
 } from '@/features/decks/hooks/useDecks';
+import { useT } from '@/i18n';
 import type { DeckWithCounts } from '@/types';
 import { cn } from '@/utils/cn';
 
@@ -42,6 +43,7 @@ export interface DeckCardProps {
 }
 
 export function DeckCard({ deck, onEdit }: DeckCardProps) {
+  const t = useT();
   const favorite = useFavoriteDeck();
   const archive = useArchiveDeck();
   const duplicate = useDuplicateDeck();
@@ -57,7 +59,7 @@ export function DeckCard({ deck, onEdit }: DeckCardProps) {
     <Card className="flex flex-col transition-shadow hover:shadow-md">
       <CardHeader className="relative pb-2">
         <div
-          className="absolute top-0 left-0 h-1 w-full rounded-t-lg"
+          className="absolute top-0 start-0 h-1 w-full rounded-t-lg"
           style={{ backgroundColor: deck.color }}
           aria-hidden
         />
@@ -78,15 +80,17 @@ export function DeckCard({ deck, onEdit }: DeckCardProps) {
             ) : null}
           </div>
           <Dropdown>
-            <DropdownTrigger aria-label={`Actions for ${deck.title}`}>
+            <DropdownTrigger
+              aria-label={t('decks.actionsAria', { title: deck.title })}
+            >
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted">
                 <MoreVertical className="h-4 w-4" aria-hidden />
               </span>
             </DropdownTrigger>
             <DropdownMenu align="end">
               <DropdownItem onSelect={() => onEdit(deck)} disabled={busy}>
-                <Pencil className="mr-2 h-4 w-4" aria-hidden />
-                Edit
+                <Pencil className="me-2 h-4 w-4" aria-hidden />
+                {t('decks.edit')}
               </DropdownItem>
               <DropdownItem
                 onSelect={() =>
@@ -97,29 +101,29 @@ export function DeckCard({ deck, onEdit }: DeckCardProps) {
                 }
                 disabled={busy}
               >
-                <Star className="mr-2 h-4 w-4" aria-hidden />
-                {deck.isFavorite ? 'Unfavorite' : 'Favorite'}
+                <Star className="me-2 h-4 w-4" aria-hidden />
+                {deck.isFavorite ? t('decks.unfavorite') : t('common.favorite')}
               </DropdownItem>
               <DropdownItem
                 onSelect={() => duplicate.mutate(deck.id)}
                 disabled={busy}
               >
-                <Copy className="mr-2 h-4 w-4" aria-hidden />
-                Duplicate
+                <Copy className="me-2 h-4 w-4" aria-hidden />
+                {t('decks.duplicate')}
               </DropdownItem>
               <DropdownItem
                 onSelect={() => archive.mutate(deck.id)}
                 disabled={busy}
               >
-                <Archive className="mr-2 h-4 w-4" aria-hidden />
-                {deck.isArchived ? 'Unarchive' : 'Archive'}
+                <Archive className="me-2 h-4 w-4" aria-hidden />
+                {deck.isArchived ? t('decks.unarchive') : t('decks.archive')}
               </DropdownItem>
               <DropdownItem
                 danger
                 onSelect={() => {
                   if (
                     window.confirm(
-                      `Delete “${deck.title}”? This cannot be undone.`,
+                      t('decks.deleteConfirm', { title: deck.title }),
                     )
                   ) {
                     remove.mutate(deck.id);
@@ -127,8 +131,8 @@ export function DeckCard({ deck, onEdit }: DeckCardProps) {
                 }}
                 disabled={busy}
               >
-                <Trash2 className="mr-2 h-4 w-4" aria-hidden />
-                Delete
+                <Trash2 className="me-2 h-4 w-4" aria-hidden />
+                {t('decks.delete')}
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>
@@ -136,15 +140,21 @@ export function DeckCard({ deck, onEdit }: DeckCardProps) {
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">
         <div className="flex flex-wrap gap-2">
-          <Badge variant="neutral">{deck.cardCount} cards</Badge>
-          <Badge variant={deck.dueCount > 0 ? 'warning' : 'success'}>
-            {deck.dueCount} due
+          <Badge variant="neutral">
+            {t('common.cards', { count: deck.cardCount })}
           </Badge>
-          {deck.isFavorite ? <Badge variant="default">Favorite</Badge> : null}
-          {deck.isArchived ? <Badge variant="outline">Archived</Badge> : null}
+          <Badge variant={deck.dueCount > 0 ? 'warning' : 'success'}>
+            {t('common.due', { count: deck.dueCount })}
+          </Badge>
+          {deck.isFavorite ? (
+            <Badge variant="default">{t('common.favorite')}</Badge>
+          ) : null}
+          {deck.isArchived ? (
+            <Badge variant="outline">{t('common.archived')}</Badge>
+          ) : null}
         </div>
         {deck.tags.length > 0 ? (
-          <ul className="flex flex-wrap gap-1.5" aria-label="Tags">
+          <ul className="flex flex-wrap gap-1.5" aria-label={t('common.tags')}>
             {deck.tags.map((tag) => (
               <li key={tag}>
                 <Badge variant="secondary">{tag}</Badge>
@@ -158,7 +168,7 @@ export function DeckCard({ deck, onEdit }: DeckCardProps) {
           href={ROUTES.DECK_DETAIL(deck.id)}
           className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'w-full')}
         >
-          Open deck
+          {t('decks.openDeck')}
         </Link>
       </CardFooter>
     </Card>

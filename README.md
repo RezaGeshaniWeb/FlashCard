@@ -1,5 +1,7 @@
 # FlashMaster
 
+**دمو آنلاین:** [https://flash-card-ten-mu.vercel.app](https://flash-card-ten-mu.vercel.app)
+
 پلتفرم مدرن یادگیری با فلش‌کارت، مبتنی بر **یادآوری فعال (Active Recall)** و **تکرار فاصله‌دار (Spaced Repetition)**.
 
 این مخزن شامل مستندات محصول در `context/` و اپلیکیشن Next.js در `project/` است.
@@ -140,7 +142,7 @@ FlashCard/
 
 ### تنظیمات
 - تم روشن / تاریک / سیستم
-- زبان و منطقه زمانی (ذخیره در تنظیمات)
+- زبان رابط کاربری: انگلیسی (پیش‌فرض) و فارسی + منطقه زمانی
 - اعلان‌ها (تاگل ذخیره‌شده؛ بدون ارسال واقعی)
 - دسترسی‌پذیری (حرکت کمتر، متن بزرگ‌تر، کنتراست بالا)
 - Export / Import داده
@@ -332,7 +334,8 @@ src/
 
 ## رابط کاربری و تم
 
-- فونت: Inter
+- زبان‌ها: انگلیسی (پیش‌فرض، LTR) و فارسی (RTL)
+- فونت انگلیسی: Inter — فونت فارسی: Kalameh (`project/public/font/Kalameh-Regular.ttf`)
 - توکن‌های رنگ: Primary، Secondary، Success، Warning، Danger، Info، Neutral
 - تم: Light / Dark / System (Provider محلی با `useServerInsertedHTML` برای جلوگیری از هشدار React 19 درباره `<script>` داخل Client Component)
 - حالت‌های خالی / لودینگ / خطا طبق `context/ui.md`

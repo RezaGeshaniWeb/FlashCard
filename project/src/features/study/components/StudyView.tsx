@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import type { ReviewRating, StudyMode } from '@/types';
 import { STUDY_MODES, ROUTES } from '@/constants';
+import { useT } from '@/i18n';
 import {
   useStudySession,
   type StudyOrder,
@@ -38,6 +39,7 @@ export interface StudyViewProps {
 }
 
 export function StudyView({ deckId }: StudyViewProps) {
+  const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const modeParam = parseMode(searchParams.get('mode'));
@@ -118,7 +120,7 @@ export function StudyView({ deckId }: StudyViewProps) {
   if (session.isError) {
     return (
       <ErrorState
-        title="Could not load study session"
+        title={t('study.loadErrorTitle')}
         onRetry={session.refetch}
       />
     );
@@ -128,28 +130,30 @@ export function StudyView({ deckId }: StudyViewProps) {
     return (
       <Card className="mx-auto max-w-lg animate-scale-in">
         <CardHeader>
-          <CardTitle>Session complete</CardTitle>
+          <CardTitle>{t('study.completeTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <p className="text-sm text-muted-foreground">
-            You reviewed {session.stats.reviewed} cards with{' '}
-            {session.stats.correct} correct and {session.stats.incorrect}{' '}
-            incorrect.
+            {t('study.completeSummary', {
+              reviewed: session.stats.reviewed,
+              correct: session.stats.correct,
+              incorrect: session.stats.incorrect,
+            })}
           </p>
           <div className="flex flex-wrap gap-2">
             {session.incorrectCount > 0 ? (
               <Button type="button" onClick={session.retryIncorrect}>
-                Retry incorrect ({session.incorrectCount})
+                {t('study.retryIncorrect', { count: session.incorrectCount })}
               </Button>
             ) : null}
             <Button type="button" variant="outline" onClick={session.restart}>
-              Study again
+              {t('study.studyAgain')}
             </Button>
             <Link
               href={ROUTES.DECK_DETAIL(deckId)}
               className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium hover:bg-muted"
             >
-              Back to deck
+              {t('study.backToDeck')}
             </Link>
           </div>
         </CardContent>
@@ -160,9 +164,9 @@ export function StudyView({ deckId }: StudyViewProps) {
   if (!session.currentCard || session.progress.total === 0) {
     return (
       <EmptyState
-        title="No cards to study"
-        description="This deck has no cards for the selected mode."
-        actionLabel="Back to decks"
+        title={t('study.emptyTitle')}
+        description={t('study.emptyDescription')}
+        actionLabel={t('study.emptyAction')}
         onAction={() => router.push(ROUTES.DECKS)}
       />
     );
@@ -173,11 +177,13 @@ export function StudyView({ deckId }: StudyViewProps) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Study</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t('study.title')}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {mode === 'exam'
-            ? 'Rate without flipping first — recall from memory.'
-            : 'Flip, rate, and keep your streak going.'}
+            ? t('study.subtitleExam')
+            : t('study.subtitleDefault')}
         </p>
       </div>
 

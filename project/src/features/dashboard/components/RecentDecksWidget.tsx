@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Layers } from 'lucide-react';
 import { ROUTES } from '@/constants';
@@ -6,30 +8,32 @@ import { formatRelative } from '@/utils/dates';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { useT } from '@/i18n';
 
 export interface RecentDecksWidgetProps {
   decks: DeckWithCounts[];
 }
 
 export function RecentDecksWidget({ decks }: RecentDecksWidgetProps) {
+  const t = useT();
   const recent = decks.slice(0, 5);
 
   return (
     <Card className="animate-slide-up">
       <CardHeader className="flex-row items-center justify-between">
-        <CardTitle>Recent decks</CardTitle>
+        <CardTitle>{t('dashboard.recentDecks')}</CardTitle>
         <Link
           href={ROUTES.DECKS}
           className="text-sm font-medium text-primary hover:underline"
         >
-          View all
+          {t('dashboard.viewAll')}
         </Link>
       </CardHeader>
       <CardContent>
         {recent.length === 0 ? (
           <EmptyState
-            title="No decks yet"
-            description="Create a deck to start studying."
+            title={t('dashboard.noDecksYet')}
+            description={t('dashboard.createDeckHint')}
             icon={<Layers className="h-6 w-6" aria-hidden />}
             className="border-0 py-8"
           />
@@ -51,12 +55,18 @@ export function RecentDecksWidget({ decks }: RecentDecksWidgetProps) {
                       {deck.title}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Updated {formatRelative(deck.updatedAt)}
+                      {t('dashboard.updated', {
+                        relativeTime: formatRelative(deck.updatedAt),
+                      })}
                     </p>
                   </div>
-                  <Badge variant="neutral">{deck.cardCount} cards</Badge>
+                  <Badge variant="neutral">
+                    {t('common.cards', { count: deck.cardCount })}
+                  </Badge>
                   {deck.dueCount > 0 ? (
-                    <Badge variant="warning">{deck.dueCount} due</Badge>
+                    <Badge variant="warning">
+                      {t('common.due', { count: deck.dueCount })}
+                    </Badge>
                   ) : null}
                 </Link>
               </li>

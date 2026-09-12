@@ -14,15 +14,16 @@ import {
 import { APP_NAME, ROUTES } from '@/constants';
 import { useLogout } from '@/features/auth/hooks/useAuth';
 import { useUiStore } from '@/store/ui-store';
+import { useLocale, useT } from '@/i18n';
 import { cn } from '@/utils/cn';
 import { Button } from '@/components/ui/Button';
 
 const NAV_ITEMS = [
-  { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
-  { href: ROUTES.DECKS, label: 'Decks', icon: Layers },
-  { href: ROUTES.STATISTICS, label: 'Statistics', icon: BarChart3 },
-  { href: ROUTES.SETTINGS, label: 'Settings', icon: Settings },
-  { href: ROUTES.PROFILE, label: 'Profile', icon: User },
+  { href: ROUTES.DASHBOARD, labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { href: ROUTES.DECKS, labelKey: 'nav.decks', icon: Layers },
+  { href: ROUTES.STATISTICS, labelKey: 'nav.statistics', icon: BarChart3 },
+  { href: ROUTES.SETTINGS, labelKey: 'nav.settings', icon: Settings },
+  { href: ROUTES.PROFILE, labelKey: 'nav.profile', icon: User },
 ] as const;
 
 function isActive(pathname: string, href: string): boolean {
@@ -36,6 +37,8 @@ export function AppSidebar() {
   const sidebarOpen = useUiStore((s) => s.sidebarOpen);
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen);
   const logout = useLogout();
+  const t = useT();
+  const { dir } = useLocale();
 
   const handleLogout = async () => {
     try {
@@ -48,9 +51,12 @@ export function AppSidebar() {
     }
   };
 
+  const closedTranslate =
+    dir === 'rtl' ? 'translate-x-full' : '-translate-x-full';
+
   const nav = (
-    <nav aria-label="Main" className="flex flex-1 flex-col gap-1 px-3 py-4">
-      {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+    <nav aria-label={t('nav.mainAria')} className="flex flex-1 flex-col gap-1 px-3 py-4">
+      {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
         const active = isActive(pathname, href);
         return (
           <Link
@@ -67,7 +73,7 @@ export function AppSidebar() {
             aria-current={active ? 'page' : undefined}
           >
             <Icon className="h-5 w-5 shrink-0" aria-hidden />
-            {label}
+            {t(labelKey)}
           </Link>
         );
       })}
@@ -78,10 +84,10 @@ export function AppSidebar() {
           className="w-full justify-start gap-3 px-3 text-muted-foreground hover:text-foreground"
           onClick={() => void handleLogout()}
           loading={logout.isPending}
-          aria-label="Sign out"
+          aria-label={t('nav.signOut')}
         >
           <LogOut className="h-5 w-5 shrink-0" aria-hidden />
-          Sign out
+          {t('nav.signOut')}
         </Button>
       </div>
     </nav>
@@ -100,10 +106,10 @@ export function AppSidebar() {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-[var(--sidebar-width)] flex-col border-r border-border bg-card transition-transform duration-200 lg:hidden',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+          'fixed inset-y-0 start-0 z-50 flex w-[var(--sidebar-width)] flex-col border-e border-border bg-card transition-transform duration-200 lg:hidden',
+          sidebarOpen ? 'translate-x-0' : closedTranslate,
         )}
-        aria-label="Sidebar"
+        aria-label={t('nav.sidebarAria')}
         aria-hidden={!sidebarOpen}
       >
         <div className="flex h-[var(--header-height)] items-center justify-between border-b border-border px-4">
@@ -120,7 +126,7 @@ export function AppSidebar() {
             size="icon"
             className="h-9 w-9"
             onClick={() => setSidebarOpen(false)}
-            aria-label="Close sidebar"
+            aria-label={t('nav.closeSidebar')}
           >
             <X className="h-5 w-5" aria-hidden />
           </Button>
@@ -129,8 +135,8 @@ export function AppSidebar() {
       </aside>
 
       <aside
-        className="sticky top-0 hidden h-screen w-[var(--sidebar-width)] shrink-0 flex-col border-r border-border bg-card lg:flex"
-        aria-label="Sidebar"
+        className="sticky top-0 hidden h-screen w-[var(--sidebar-width)] shrink-0 flex-col border-e border-border bg-card lg:flex"
+        aria-label={t('nav.sidebarAria')}
       >
         <div className="flex h-[var(--header-height)] items-center border-b border-border px-4">
           <Link

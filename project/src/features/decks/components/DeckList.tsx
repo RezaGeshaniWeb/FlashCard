@@ -13,9 +13,11 @@ import {
   type DeckFilterMode,
 } from '@/features/decks/components/DeckToolbar';
 import { useDecks } from '@/features/decks/hooks/useDecks';
+import { useT } from '@/i18n';
 import type { DeckSort, DeckWithCounts } from '@/types';
 
 export function DeckList() {
+  const t = useT();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<DeckFilterMode>('all');
   const [sort, setSort] = useState<DeckSort>('updatedAt');
@@ -61,6 +63,15 @@ export function DeckList() {
 
   return (
     <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          {t('decks.pageTitle')}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {t('decks.pageSubtitle')}
+        </p>
+      </header>
+
       <DeckToolbar
         search={search}
         onSearchChange={setSearch}
@@ -74,26 +85,26 @@ export function DeckList() {
         onCreate={openCreate}
       />
 
-      {isLoading ? <Loader label="Loading decks…" /> : null}
+      {isLoading ? <Loader label={t('decks.loading')} /> : null}
 
       {isError ? (
         <ErrorState
-          title="Could not load decks"
-          description="Check your connection and try again."
+          title={t('decks.loadErrorTitle')}
+          description={t('decks.loadErrorDescription')}
           onRetry={() => void refetch()}
         />
       ) : null}
 
       {!isLoading && !isError && data && data.length === 0 ? (
         <EmptyState
-          title="No decks yet"
+          title={t('decks.emptyTitle')}
           description={
             hasActiveFilters
-              ? 'Try a different search or filter.'
-              : 'Create your first deck to start adding flashcards.'
+              ? t('decks.emptyFiltered')
+              : t('decks.emptyDefault')
           }
           icon={<Library className="h-6 w-6" aria-hidden />}
-          actionLabel={hasActiveFilters ? undefined : 'Create deck'}
+          actionLabel={hasActiveFilters ? undefined : t('decks.createDeck')}
           onAction={hasActiveFilters ? undefined : openCreate}
         />
       ) : null}
@@ -102,7 +113,7 @@ export function DeckList() {
         <ul
           className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
           aria-busy={isFetching || undefined}
-          aria-label="Deck list"
+          aria-label={t('decks.listAria')}
         >
           {data.map((deck) => (
             <li key={deck.id}>

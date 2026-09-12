@@ -7,6 +7,7 @@ import type { UserExportData } from '@/types';
 import type { ImportDataInput } from '../services/settings-service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useT } from '@/i18n';
 
 export interface DataExportImportProps {
   onExport: () => Promise<UserExportData>;
@@ -33,6 +34,7 @@ export function DataExportImport({
   isExporting = false,
   isImporting = false,
 }: DataExportImportProps) {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -41,9 +43,9 @@ export function DataExportImport({
     try {
       const data = await onExport();
       downloadJson(data, `flashmaster-export-${Date.now()}.json`);
-      toast.success('Export downloaded');
+      toast.success(t('settings.exportDownloaded'));
     } catch {
-      toast.error('Export failed');
+      toast.error(t('settings.exportFailed'));
     } finally {
       setBusy(false);
     }
@@ -59,7 +61,7 @@ export function DataExportImport({
         parsed === null ||
         !Array.isArray((parsed as { decks?: unknown }).decks)
       ) {
-        throw new Error('Invalid export file');
+        throw new Error(t('settings.invalidExportFile'));
       }
       const exportData = parsed as UserExportData | ImportDataInput;
       const decks =
@@ -91,7 +93,7 @@ export function DataExportImport({
 
       await onImport({ decks });
     } catch {
-      toast.error('Could not import file');
+      toast.error(t('settings.importFailed'));
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -101,10 +103,8 @@ export function DataExportImport({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Data export & import</CardTitle>
-        <CardDescription>
-          Download a backup or restore decks from a JSON export.
-        </CardDescription>
+        <CardTitle>{t('settings.dataTitle')}</CardTitle>
+        <CardDescription>{t('settings.dataDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-3">
         <Button
@@ -112,20 +112,20 @@ export function DataExportImport({
           variant="outline"
           loading={busy || isExporting}
           onClick={() => void handleExport()}
-          aria-label="Export all data"
+          aria-label={t('settings.exportJson')}
         >
           <Download className="h-4 w-4" aria-hidden />
-          Export JSON
+          {t('settings.exportJson')}
         </Button>
         <Button
           type="button"
           variant="outline"
           loading={busy || isImporting}
           onClick={() => inputRef.current?.click()}
-          aria-label="Import data from JSON"
+          aria-label={t('settings.importJson')}
         >
           <Upload className="h-4 w-4" aria-hidden />
-          Import JSON
+          {t('settings.importJson')}
         </Button>
         <input
           ref={inputRef}

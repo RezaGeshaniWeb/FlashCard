@@ -1,36 +1,38 @@
 'use client';
 
+import { useMemo } from 'react';
 import type { ReviewRating } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/utils/cn';
+import { useT } from '@/i18n';
 
-const RATINGS: Array<{
+const RATING_META: Array<{
   rating: ReviewRating;
-  label: string;
+  labelKey: 'study.again' | 'study.hard' | 'study.good' | 'study.easy';
   key: string;
   className: string;
 }> = [
   {
     rating: 'again',
-    label: 'Again',
+    labelKey: 'study.again',
     key: '1',
     className: 'border-danger/40 text-danger hover:bg-danger-muted',
   },
   {
     rating: 'hard',
-    label: 'Hard',
+    labelKey: 'study.hard',
     key: '2',
     className: 'border-warning/40 text-warning hover:bg-warning-muted',
   },
   {
     rating: 'good',
-    label: 'Good',
+    labelKey: 'study.good',
     key: '3',
     className: 'border-success/40 text-success hover:bg-success-muted',
   },
   {
     rating: 'easy',
-    label: 'Easy',
+    labelKey: 'study.easy',
     key: '4',
     className: 'border-primary/40 text-primary hover:bg-secondary',
   },
@@ -47,10 +49,21 @@ export function RatingButtons({
   disabled = false,
   visible = true,
 }: RatingButtonsProps) {
+  const t = useT();
+
+  const ratings = useMemo(
+    () =>
+      RATING_META.map((item) => ({
+        ...item,
+        label: t(item.labelKey),
+      })),
+    [t],
+  );
+
   if (!visible) {
     return (
       <p className="text-center text-sm text-muted-foreground">
-        Flip the card to rate your recall
+        {t('study.flipToRate')}
       </p>
     );
   }
@@ -59,9 +72,9 @@ export function RatingButtons({
     <div
       className="grid grid-cols-2 gap-2 sm:grid-cols-4"
       role="group"
-      aria-label="Rate recall"
+      aria-label={t('study.rateAria')}
     >
-      {RATINGS.map(({ rating, label, key, className }) => (
+      {ratings.map(({ rating, label, key, className }) => (
         <Button
           key={rating}
           type="button"

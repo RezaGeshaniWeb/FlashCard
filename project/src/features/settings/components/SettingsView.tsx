@@ -9,8 +9,10 @@ import { DeleteAccountSection } from './DeleteAccountSection';
 import { ChangePasswordForm } from './ChangePasswordForm';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useT } from '@/i18n';
 
 export function SettingsView() {
+  const t = useT();
   const {
     settings,
     user,
@@ -36,16 +38,18 @@ export function SettingsView() {
 
   if (isError || !settings) {
     return (
-      <ErrorState title="Could not load settings" onRetry={refetch} />
+      <ErrorState title={t('settings.loadErrorTitle')} onRetry={refetch} />
     );
   }
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t('settings.title')}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Theme, notifications, accessibility, and data controls.
+          {t('settings.subtitle')}
         </p>
       </div>
 

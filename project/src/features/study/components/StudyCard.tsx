@@ -7,6 +7,7 @@ import { cn } from '@/utils/cn';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
+import { useT } from '@/i18n';
 
 export interface StudyCardProps {
   card: Flashcard;
@@ -27,6 +28,7 @@ export function StudyCard({
   notesSaving = false,
   examMode = false,
 }: StudyCardProps) {
+  const t = useT();
   // Parent should remount with key={card.id} so draft resets per card.
   const [notesOpen, setNotesOpen] = useState(false);
   const [notesDraft, setNotesDraft] = useState(card.notes ?? '');
@@ -50,7 +52,9 @@ export function StudyCard({
               size="icon"
               className="h-9 w-9"
               onClick={() => setNotesOpen((open) => !open)}
-              aria-label={notesOpen ? 'Hide notes' : 'Show notes'}
+              aria-label={
+                notesOpen ? t('study.hideNotes') : t('study.showNotes')
+              }
               aria-pressed={notesOpen}
             >
               <StickyNote
@@ -68,7 +72,11 @@ export function StudyCard({
             size="icon"
             className="h-9 w-9"
             onClick={onBookmark}
-            aria-label={card.isBookmarked ? 'Remove bookmark' : 'Bookmark card'}
+            aria-label={
+              card.isBookmarked
+                ? t('study.removeBookmark')
+                : t('study.bookmark')
+            }
             aria-pressed={card.isBookmarked}
           >
             <Bookmark
@@ -86,9 +94,11 @@ export function StudyCard({
         type="button"
         onClick={onFlip}
         disabled={examMode && flipped}
-        aria-label={flipped ? 'Show front of card' : 'Flip card to reveal answer'}
+        aria-label={
+          flipped ? t('study.showFrontAria') : t('study.flipAria')
+        }
         className={cn(
-          'flip-card min-h-[280px] w-full cursor-pointer rounded-lg border border-border bg-transparent text-left shadow-md',
+          'flip-card min-h-[280px] w-full cursor-pointer rounded-lg border border-border bg-transparent text-start shadow-md',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           examMode && flipped && 'cursor-default',
         )}
@@ -106,17 +116,19 @@ export function StudyCard({
             )}
           >
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Front
+              {t('study.front')}
             </p>
             <p className="text-xl font-semibold leading-relaxed text-foreground md:text-2xl">
               {card.front}
             </p>
             {card.hint ? (
-              <p className="text-sm text-muted-foreground">Hint: {card.hint}</p>
+              <p className="text-sm text-muted-foreground">
+                {t('study.hintPrefix', { hint: card.hint })}
+              </p>
             ) : null}
             {!examMode ? (
               <p className="mt-4 text-xs text-muted-foreground">
-                Press Space or click to flip
+                {t('study.flipHint')}
               </p>
             ) : null}
           </div>
@@ -127,14 +139,14 @@ export function StudyCard({
             )}
           >
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Back
+              {t('study.back')}
             </p>
             <p className="text-xl font-semibold leading-relaxed text-foreground md:text-2xl">
               {card.back}
             </p>
             {card.example ? (
               <p className="text-sm text-muted-foreground">
-                Example: {card.example}
+                {t('study.examplePrefix', { example: card.example })}
               </p>
             ) : null}
             {card.imageUrl ? (
@@ -152,7 +164,7 @@ export function StudyCard({
                 className="mt-2 w-full"
                 onClick={(e) => e.stopPropagation()}
               >
-                Your browser does not support audio.
+                {t('study.audioUnsupported')}
               </audio>
             ) : null}
           </div>
@@ -162,12 +174,12 @@ export function StudyCard({
       {notesOpen && onSaveNotes ? (
         <div className="rounded-lg border border-border bg-card p-4 shadow-sm animate-slide-up">
           <Textarea
-            label="Notes"
+            label={t('study.notes')}
             value={notesDraft}
             onChange={(e) => setNotesDraft(e.target.value)}
             rows={3}
-            hint="Private notes for this card."
-            aria-label="Card notes"
+            hint={t('study.notesHint')}
+            aria-label={t('study.notes')}
           />
           <div className="mt-3 flex justify-end gap-2">
             <Button
@@ -177,17 +189,17 @@ export function StudyCard({
                 setNotesDraft(card.notes ?? '');
                 setNotesOpen(false);
               }}
-              aria-label="Cancel notes"
+              aria-label={t('study.cancelNotes')}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
               loading={notesSaving}
               onClick={() => void onSaveNotes(notesDraft)}
-              aria-label="Save notes"
+              aria-label={t('study.saveNotes')}
             >
-              Save notes
+              {t('study.saveNotes')}
             </Button>
           </div>
         </div>

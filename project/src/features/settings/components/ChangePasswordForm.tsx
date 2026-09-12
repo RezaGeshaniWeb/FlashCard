@@ -1,26 +1,28 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { useT, type TranslateFn } from '@/i18n';
 
-const schema = z
-  .object({
-    currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z
-      .string()
-      .min(8, 'New password must be at least 8 characters'),
-    confirmPassword: z.string().min(1, 'Confirm your new password'),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+function createPasswordSchema(t: TranslateFn) {
+  return z
+    .object({
+      currentPassword: z.string().min(1, t('settings.currentRequired')),
+      newPassword: z.string().min(8, t('settings.newMin')),
+      confirmPassword: z.string().min(1, t('settings.confirmNewRequired')),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t('settings.passwordsMismatch'),
+      path: ['confirmPassword'],
+    });
+}
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof createPasswordSchema>>;
 
 export interface ChangePasswordFormProps {
   onSubmit: (values: {
@@ -34,6 +36,9 @@ export function ChangePasswordForm({
   onSubmit,
   isSubmitting = false,
 }: ChangePasswordFormProps) {
+  const t = useT();
+  const schema = useMemo(() => createPasswordSchema(t), [t]);
+
   const {
     register,
     handleSubmit,
@@ -51,9 +56,9 @@ export function ChangePasswordForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Change password</CardTitle>
+        <CardTitle>{t('settings.changePasswordTitle')}</CardTitle>
         <CardDescription>
-          Use a strong password you do not reuse elsewhere.
+          {t('settings.changePasswordDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -69,7 +74,7 @@ export function ChangePasswordForm({
           noValidate
         >
           <Input
-            label="Current password"
+            label={t('settings.currentPassword')}
             type="password"
             showPasswordToggle
             autoComplete="current-password"
@@ -77,7 +82,7 @@ export function ChangePasswordForm({
             {...register('currentPassword')}
           />
           <Input
-            label="New password"
+            label={t('settings.newPassword')}
             type="password"
             showPasswordToggle
             autoComplete="new-password"
@@ -85,7 +90,7 @@ export function ChangePasswordForm({
             {...register('newPassword')}
           />
           <Input
-            label="Confirm new password"
+            label={t('settings.confirmNewPassword')}
             type="password"
             showPasswordToggle
             autoComplete="new-password"
@@ -93,7 +98,7 @@ export function ChangePasswordForm({
             {...register('confirmPassword')}
           />
           <Button type="submit" loading={isSubmitting} className="w-fit">
-            Update password
+            {t('settings.updatePassword')}
           </Button>
         </form>
       </CardContent>

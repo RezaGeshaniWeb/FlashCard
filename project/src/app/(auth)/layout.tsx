@@ -1,15 +1,24 @@
+'use client';
+
 import type { ReactNode } from 'react';
 import { Layers } from 'lucide-react';
 
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { APP_NAME } from '@/constants';
+import { useT } from '@/i18n';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
+  const t = useT();
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4 py-12">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--secondary)_0%,_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_srgb,var(--primary)_18%,transparent)_0%,_transparent_50%)]"
         aria-hidden
       />
+      <div className="absolute end-4 top-4 z-20">
+        <LanguageSwitcher />
+      </div>
       <div className="relative z-10 flex w-full max-w-md flex-col gap-8">
         <div className="flex flex-col items-center gap-3 text-center">
           <div
@@ -22,7 +31,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             {APP_NAME}
           </h1>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Spaced-repetition flashcards to master anything faster.
+            {t('auth.layoutTagline')}
           </p>
         </div>
         <div className="rounded-xl border border-border bg-card/90 p-6 shadow-md backdrop-blur-sm">

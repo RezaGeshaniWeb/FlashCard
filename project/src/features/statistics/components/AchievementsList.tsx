@@ -1,70 +1,65 @@
+'use client';
+
 import { Award, CheckCircle2, Lock } from 'lucide-react';
 import type { Stats } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/utils/cn';
+import { useT } from '@/i18n';
 
 export interface AchievementsListProps {
   stats: Stats;
 }
 
-interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  unlocked: boolean;
-}
+export function AchievementsList({ stats }: AchievementsListProps) {
+  const t = useT();
 
-function buildAchievements(stats: Stats): Achievement[] {
-  return [
+  const achievements = [
     {
       id: 'first-review',
-      title: 'First steps',
-      description: 'Complete your first review',
+      title: t('statistics.firstStepsTitle'),
+      description: t('statistics.firstStepsDesc'),
       unlocked: stats.totalReviews >= 1,
     },
     {
       id: 'streak-7',
-      title: 'Week warrior',
-      description: 'Reach a 7-day study streak',
+      title: t('statistics.weekWarriorTitle'),
+      description: t('statistics.weekWarriorDesc'),
       unlocked: stats.studyStreak >= 7,
     },
     {
       id: 'streak-30',
-      title: 'Consistency king',
-      description: 'Reach a 30-day study streak',
+      title: t('statistics.consistencyKingTitle'),
+      description: t('statistics.consistencyKingDesc'),
       unlocked: stats.studyStreak >= 30,
     },
     {
       id: 'cards-50',
-      title: 'Half century',
-      description: 'Learn 50 cards',
+      title: t('statistics.halfCenturyTitle'),
+      description: t('statistics.halfCenturyDesc'),
       unlocked: stats.cardsLearned >= 50,
     },
     {
       id: 'accuracy-80',
-      title: 'Sharp mind',
-      description: 'Reach 80% overall accuracy',
+      title: t('statistics.sharpMindTitle'),
+      description: t('statistics.sharpMindDesc'),
       unlocked:
         Math.round(stats.accuracy * (stats.accuracy <= 1 ? 100 : 1)) >= 80,
     },
     {
       id: 'reviews-500',
-      title: 'Dedicated learner',
-      description: 'Complete 500 reviews',
+      title: t('statistics.dedicatedLearnerTitle'),
+      description: t('statistics.dedicatedLearnerDesc'),
       unlocked: stats.totalReviews >= 500,
     },
   ];
-}
 
-export function AchievementsList({ stats }: AchievementsListProps) {
-  const achievements = buildAchievements(stats);
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
 
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between">
-        <CardTitle>Achievements</CardTitle>
+        <CardTitle>{t('statistics.achievements')}</CardTitle>
         <Badge variant="default">
           {unlockedCount}/{achievements.length}
         </Badge>

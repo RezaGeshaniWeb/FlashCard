@@ -1,3 +1,5 @@
+'use client';
+
 import {
   BookOpen,
   Brain,
@@ -9,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { Stats } from '@/types';
 import { Card, CardContent } from '@/components/ui/Card';
+import { useT } from '@/i18n';
 
 export interface StatsOverviewProps {
   stats: Stats;
@@ -19,40 +22,44 @@ function toPercent(value: number): number {
 }
 
 export function StatsOverview({ stats }: StatsOverviewProps) {
+  const t = useT();
+
   const items = [
     {
-      label: 'Total decks',
+      label: t('statistics.totalDecks'),
       value: String(stats.totalDecks),
       icon: Layers,
     },
     {
-      label: 'Total cards',
+      label: t('statistics.totalCards'),
       value: String(stats.totalCards),
       icon: BookOpen,
     },
     {
-      label: 'Cards learned',
+      label: t('statistics.cardsLearned'),
       value: String(stats.cardsLearned),
       icon: Brain,
     },
     {
-      label: 'Accuracy',
+      label: t('statistics.accuracy'),
       value: `${toPercent(stats.accuracy)}%`,
       icon: Target,
     },
     {
-      label: 'Memory score',
+      label: t('statistics.memoryScore'),
       value: `${Math.round(stats.averageMemoryScore)}`,
       icon: Sparkles,
     },
     {
-      label: 'Total reviews',
+      label: t('statistics.totalReviews'),
       value: String(stats.totalReviews),
       icon: TrendingUp,
     },
     {
-      label: 'Study time',
-      value: `${stats.totalStudyMinutes}m`,
+      label: t('statistics.studyTime'),
+      value: t('statistics.studyTimeValue', {
+        minutes: stats.totalStudyMinutes,
+      }),
       icon: Clock,
     },
   ];

@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
+import { useT } from '@/i18n';
 import type { DeckSort } from '@/types';
 
 export type DeckFilterMode = 'all' | 'favorites' | 'archived';
@@ -22,20 +23,6 @@ export interface DeckToolbarProps {
   onCreate: () => void;
 }
 
-const FILTER_OPTIONS = [
-  { value: 'all', label: 'All decks' },
-  { value: 'favorites', label: 'Favorites' },
-  { value: 'archived', label: 'Archived' },
-];
-
-const SORT_OPTIONS: { value: DeckSort; label: string }[] = [
-  { value: 'updatedAt', label: 'Recently updated' },
-  { value: 'createdAt', label: 'Recently created' },
-  { value: 'title', label: 'Title' },
-  { value: 'cardCount', label: 'Card count' },
-  { value: 'dueCount', label: 'Due count' },
-];
-
 export function DeckToolbar({
   search,
   onSearchChange,
@@ -48,8 +35,24 @@ export function DeckToolbar({
   tagOptions,
   onCreate,
 }: DeckToolbarProps) {
+  const t = useT();
+
+  const filterOptions = [
+    { value: 'all', label: t('decks.allDecks') },
+    { value: 'favorites', label: t('decks.favorites') },
+    { value: 'archived', label: t('decks.archived') },
+  ];
+
+  const sortOptions: { value: DeckSort; label: string }[] = [
+    { value: 'updatedAt', label: t('decks.sortUpdated') },
+    { value: 'createdAt', label: t('decks.sortCreated') },
+    { value: 'title', label: t('decks.sortTitle') },
+    { value: 'cardCount', label: t('decks.sortCardCount') },
+    { value: 'dueCount', label: t('decks.sortDueCount') },
+  ];
+
   const tagSelectOptions = [
-    { value: '', label: 'All tags' },
+    { value: '', label: t('decks.allTags') },
     ...tagOptions.map((value) => ({ value, label: value })),
   ];
 
@@ -61,38 +64,42 @@ export function DeckToolbar({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             onClear={() => onSearchChange('')}
-            placeholder="Search decks…"
-            aria-label="Search decks"
+            placeholder={t('decks.searchPlaceholder')}
+            aria-label={t('decks.searchAria')}
           />
         </div>
         <Select
-          label="Filter"
+          label={t('decks.filter')}
           className="sm:w-40"
-          options={FILTER_OPTIONS}
+          options={filterOptions}
           value={filter}
           onChange={(e) => onFilterChange(e.target.value as DeckFilterMode)}
-          aria-label="Filter decks"
+          aria-label={t('decks.filterAria')}
         />
         <Select
-          label="Tag"
+          label={t('decks.tag')}
           className="sm:w-40"
           options={tagSelectOptions}
           value={tag}
           onChange={(e) => onTagChange(e.target.value)}
-          aria-label="Filter by tag"
+          aria-label={t('decks.tagAria')}
         />
         <Select
-          label="Sort"
+          label={t('decks.sort')}
           className="sm:w-48"
-          options={SORT_OPTIONS}
+          options={sortOptions}
           value={sort}
           onChange={(e) => onSortChange(e.target.value as DeckSort)}
-          aria-label="Sort decks"
+          aria-label={t('decks.sortAria')}
         />
       </div>
-      <Button type="button" onClick={onCreate} aria-label="Create deck">
+      <Button
+        type="button"
+        onClick={onCreate}
+        aria-label={t('decks.createDeck')}
+      >
         <Plus className="h-4 w-4" aria-hidden />
-        New deck
+        {t('decks.newDeck')}
       </Button>
     </div>
   );

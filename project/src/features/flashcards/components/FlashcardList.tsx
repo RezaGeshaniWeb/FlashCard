@@ -19,6 +19,7 @@ import {
   useToggleBookmark,
 } from '@/features/flashcards/hooks/useFlashcards';
 import type { ListCardsParams } from '@/features/flashcards/services/flashcard-service';
+import { useT } from '@/i18n';
 import type { Flashcard } from '@/types';
 import { cn } from '@/utils/cn';
 
@@ -26,13 +27,11 @@ export interface FlashcardListProps {
   deckId: string;
 }
 
-const DIFFICULTY_FILTER = [
-  { value: '', label: 'All difficulties' },
-  ...DIFFICULTY_LEVELS.map((level) => ({
-    value: level,
-    label: level.charAt(0).toUpperCase() + level.slice(1),
-  })),
-];
+const DIFFICULTY_LABEL_KEYS = {
+  beginner: 'common.difficultyBeginner',
+  intermediate: 'common.difficultyIntermediate',
+  advanced: 'common.difficultyAdvanced',
+} as const;
 
 function isDifficulty(
   value: string,
@@ -41,11 +40,23 @@ function isDifficulty(
 }
 
 export function FlashcardList({ deckId }: FlashcardListProps) {
+  const t = useT();
   const [search, setSearch] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Flashcard | null>(null);
+
+  const difficultyFilter = useMemo(
+    () => [
+      { value: '', label: t('common.difficultyAll') },
+      ...DIFFICULTY_LEVELS.map((level) => ({
+        value: level,
+        label: t(DIFFICULTY_LABEL_KEYS[level]),
+      })),
+    ],
+    [t],
+  );
 
   const params = useMemo((): ListCardsParams => {
     return {
@@ -80,17 +91,17 @@ export function FlashcardList({ deckId }: FlashcardListProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onClear={() => setSearch('')}
-              placeholder="Search cards…"
-              aria-label="Search cards"
+              placeholder={t('flashcards.searchPlaceholder')}
+              aria-label={t('flashcards.searchAria')}
             />
           </div>
           <Select
-            label="Difficulty"
+            label={t('flashcards.difficulty')}
             className="sm:w-44"
-            options={DIFFICULTY_FILTER}
+            options={difficultyFilter}
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
-            aria-label="Filter by difficulty"
+            aria-label={t('flashcards.difficultyAria')}
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -98,33 +109,37 @@ export function FlashcardList({ deckId }: FlashcardListProps) {
             type="button"
             variant="outline"
             onClick={() => setImportOpen(true)}
-            aria-label="Import cards"
+            aria-label={t('flashcards.importAria')}
           >
             <Upload className="h-4 w-4" aria-hidden />
-            Import
+            {t('flashcards.import')}
           </Button>
-          <Button type="button" onClick={openCreate} aria-label="Add card">
+          <Button
+            type="button"
+            onClick={openCreate}
+            aria-label={t('flashcards.addCard')}
+          >
             <Plus className="h-4 w-4" aria-hidden />
-            Add card
+            {t('flashcards.addCard')}
           </Button>
         </div>
       </div>
 
-      {isLoading ? <Loader label="Loading cards…" /> : null}
+      {isLoading ? <Loader label={t('flashcards.loading')} /> : null}
 
       {isError ? (
         <ErrorState
-          title="Could not load cards"
+          title={t('flashcards.loadErrorTitle')}
           onRetry={() => void refetch()}
         />
       ) : null}
 
       {!isLoading && !isError && data && data.length === 0 ? (
         <EmptyState
-          title="No cards in this deck"
-          description="Add a card or import from CSV, JSON, or Markdown."
+          title={t('flashcards.emptyTitle')}
+          description={t('flashcards.emptyDescription')}
           icon={<Layers className="h-6 w-6" aria-hidden />}
-          actionLabel="Add card"
+          actionLabel={t('flashcards.addCard')}
           onAction={openCreate}
         />
       ) : null}
@@ -132,7 +147,7 @@ export function FlashcardList({ deckId }: FlashcardListProps) {
       {!isLoading && !isError && data && data.length > 0 ? (
         <ul
           className="flex flex-col gap-3"
-          aria-label="Flashcard list"
+          aria-label={t('flashcards.listAria')}
           aria-busy={isFetching || undefined}
         >
           {data.map((card) => (
@@ -145,9 +160,13 @@ export function FlashcardList({ deckId }: FlashcardListProps) {
                   <p className="font-medium text-foreground">{card.front}</p>
                   <p className="text-sm text-muted-foreground">{card.back}</p>
                   <div className="flex flex-wrap gap-1.5">
-                    <Badge variant="neutral">{card.difficulty}</Badge>
+                    <Badge variant="neutral">
+                      {t(DIFFICULTY_LABEL_KEYS[card.difficulty])}
+                    </Badge>
                     {card.isBookmarked ? (
-                      <Badge variant="secondary">Bookmarked</Badge>
+                      <Badge variant="secondary">
+                        {t('flashcards.bookmarked')}
+                      </Badge>
                     ) : null}
                     {card.tags.map((tag) => (
                       <Badge key={tag} variant="secondary">
@@ -164,8 +183,8 @@ export function FlashcardList({ deckId }: FlashcardListProps) {
                     className="h-8 w-8"
                     aria-label={
                       card.isBookmarked
-                        ? `Remove bookmark from ${card.front}`
-                        : `Bookmark ${card.front}`
+                        ? t('study.removeBookmark')
+                        : t('study.bookmark')
                     }
                     aria-pressed={card.isBookmarked}
                     loading={bookmark.isPending}
@@ -184,7 +203,7 @@ export function FlashcardList({ deckId }: FlashcardListProps) {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    aria-label={`Edit card ${card.front}`}
+                    aria-label={t('flashcards.editTitle')}
                     onClick={() => openEdit(card)}
                   >
                     <Pencil className="h-4 w-4" aria-hidden />
@@ -194,10 +213,10 @@ export function FlashcardList({ deckId }: FlashcardListProps) {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-danger"
-                    aria-label={`Delete card ${card.front}`}
+                    aria-label={t('decks.delete')}
                     loading={remove.isPending}
                     onClick={() => {
-                      if (window.confirm('Delete this card?')) {
+                      if (window.confirm(t('flashcards.deleteConfirm'))) {
                         remove.mutate(card.id);
                       }
                     }}

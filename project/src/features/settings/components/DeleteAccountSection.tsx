@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Dialog, DialogFooter } from '@/components/ui/Dialog';
+import { useT } from '@/i18n';
 
 export interface DeleteAccountSectionProps {
   onDelete: () => Promise<unknown>;
@@ -17,6 +18,7 @@ export function DeleteAccountSection({
   isDeleting = false,
   confirmEmail = '',
 }: DeleteAccountSectionProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -28,20 +30,17 @@ export function DeleteAccountSection({
     <>
       <Card className="border-danger/40">
         <CardHeader>
-          <CardTitle className="text-danger">Danger zone</CardTitle>
-          <CardDescription>
-            Permanently delete your account and all study data. This cannot be
-            undone.
-          </CardDescription>
+          <CardTitle className="text-danger">{t('settings.dangerTitle')}</CardTitle>
+          <CardDescription>{t('settings.dangerDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button
             type="button"
             variant="danger"
             onClick={() => setOpen(true)}
-            aria-label="Delete account"
+            aria-label={t('settings.deleteAccount')}
           >
-            Delete account
+            {t('settings.deleteAccount')}
           </Button>
         </CardContent>
       </Card>
@@ -49,11 +48,11 @@ export function DeleteAccountSection({
       <Dialog
         open={open}
         onOpenChange={setOpen}
-        title="Delete account?"
-        description="Type your email to confirm permanent deletion."
+        title={t('settings.deleteDialogTitle')}
+        description={t('settings.deleteDialogDescription')}
       >
         <Input
-          label="Confirm email"
+          label={t('settings.confirmEmail')}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -66,7 +65,7 @@ export function DeleteAccountSection({
             variant="outline"
             onClick={() => setOpen(false)}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             type="button"
@@ -74,9 +73,9 @@ export function DeleteAccountSection({
             disabled={!canConfirm}
             loading={isDeleting}
             onClick={() => void onDelete()}
-            aria-label="Confirm delete account"
+            aria-label={t('settings.deleteForever')}
           >
-            Delete forever
+            {t('settings.deleteForever')}
           </Button>
         </DialogFooter>
       </Dialog>

@@ -16,6 +16,7 @@ import {
   type ImportCardsResult,
   type ListCardsParams,
 } from '@/features/flashcards/services/flashcard-service';
+import { useT } from '@/i18n';
 import type {
   CreateFlashcardInput,
   Flashcard,
@@ -49,6 +50,7 @@ export function useCreateFlashcard(
   deckId: string,
 ): UseMutationResult<Flashcard, Error, CreateFlashcardInput> {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: (input: CreateFlashcardInput) =>
@@ -58,10 +60,10 @@ export function useCreateFlashcard(
         queryKey: flashcardKeys.lists(),
       });
       void queryClient.invalidateQueries({ queryKey: deckKeys.all });
-      toast.success('Card created');
+      toast.success(t('flashcards.created'));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not create card'));
+      toast.error(getErrorMessage(error, t('flashcards.createFailed')));
     },
   });
 }
@@ -72,6 +74,7 @@ export function useUpdateFlashcard(): UseMutationResult<
   { id: string; input: UpdateFlashcardInput }
 > {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: ({ id, input }) => flashcardService.update(id, input),
@@ -79,16 +82,17 @@ export function useUpdateFlashcard(): UseMutationResult<
       void queryClient.invalidateQueries({
         queryKey: flashcardKeys.lists(),
       });
-      toast.success('Card updated');
+      toast.success(t('flashcards.updated'));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not update card'));
+      toast.error(getErrorMessage(error, t('flashcards.updateFailed')));
     },
   });
 }
 
 export function useDeleteFlashcard(): UseMutationResult<void, Error, string> {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: (id: string) => flashcardService.remove(id),
@@ -97,10 +101,10 @@ export function useDeleteFlashcard(): UseMutationResult<void, Error, string> {
         queryKey: flashcardKeys.lists(),
       });
       void queryClient.invalidateQueries({ queryKey: deckKeys.all });
-      toast.success('Card deleted');
+      toast.success(t('flashcards.deleted'));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not delete card'));
+      toast.error(getErrorMessage(error, t('flashcards.deleteFailed')));
     },
   });
 }
@@ -109,6 +113,7 @@ export function useImportFlashcards(
   deckId: string,
 ): UseMutationResult<ImportCardsResult, Error, ImportCardsInput> {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: (input: ImportCardsInput) =>
@@ -118,10 +123,10 @@ export function useImportFlashcards(
         queryKey: flashcardKeys.lists(),
       });
       void queryClient.invalidateQueries({ queryKey: deckKeys.all });
-      toast.success(`Imported ${result.imported} cards`);
+      toast.success(t('flashcards.imported', { count: result.imported }));
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Import failed'));
+      toast.error(getErrorMessage(error, t('flashcards.importFailed')));
     },
   });
 }
@@ -132,6 +137,7 @@ export function useToggleBookmark(): UseMutationResult<
   string
 > {
   const queryClient = useQueryClient();
+  const t = useT();
 
   return useMutation({
     mutationFn: (id: string) => flashcardService.toggleBookmark(id),
@@ -139,10 +145,14 @@ export function useToggleBookmark(): UseMutationResult<
       void queryClient.invalidateQueries({
         queryKey: flashcardKeys.lists(),
       });
-      toast.success(card.isBookmarked ? 'Bookmarked' : 'Bookmark removed');
+      toast.success(
+        card.isBookmarked
+          ? t('flashcards.bookmarkedToast')
+          : t('flashcards.bookmarkRemoved'),
+      );
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, 'Could not update bookmark'));
+      toast.error(getErrorMessage(error, t('flashcards.bookmarkFailed')));
     },
   });
 }

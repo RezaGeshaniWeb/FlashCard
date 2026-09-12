@@ -10,6 +10,7 @@ import {
 import type { DailyActivity } from '@/types';
 import { cn } from '@/utils/cn';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useT } from '@/i18n';
 
 export interface HeatmapProps {
   activity: DailyActivity[];
@@ -25,6 +26,7 @@ function intensityClass(reviews: number): string {
 }
 
 export function Heatmap({ activity, weeks = 12 }: HeatmapProps) {
+  const t = useT();
   const byDate = useMemo(() => {
     const map = new Map<string, number>();
     activity.forEach((d) => map.set(d.date.slice(0, 10), d.reviews));
@@ -40,7 +42,7 @@ export function Heatmap({ activity, weeks = 12 }: HeatmapProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Activity heatmap</CardTitle>
+        <CardTitle>{t('statistics.heatmap')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div
@@ -49,7 +51,7 @@ export function Heatmap({ activity, weeks = 12 }: HeatmapProps) {
             gridTemplateColumns: `repeat(${weeks}, minmax(0, 1fr))`,
           }}
           role="img"
-          aria-label="Study activity heatmap for the last weeks"
+          aria-label={t('statistics.heatmapAria')}
         >
           {Array.from({ length: weeks }, (_, weekIdx) => (
             <div key={weekIdx} className="flex flex-col gap-1">
@@ -59,7 +61,7 @@ export function Heatmap({ activity, weeks = 12 }: HeatmapProps) {
                 return (
                   <div
                     key={key}
-                    title={`${key}: ${reviews} reviews`}
+                    title={`${key}: ${t('statistics.reviews')} ${reviews}`}
                     className={cn(
                       'aspect-square min-h-3 w-full rounded-sm',
                       intensityClass(reviews),
@@ -71,13 +73,13 @@ export function Heatmap({ activity, weeks = 12 }: HeatmapProps) {
           ))}
         </div>
         <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-          <span>Less</span>
+          <span>{t('statistics.less')}</span>
           <span className="h-3 w-3 rounded-sm bg-muted" />
           <span className="h-3 w-3 rounded-sm bg-primary/25" />
           <span className="h-3 w-3 rounded-sm bg-primary/50" />
           <span className="h-3 w-3 rounded-sm bg-primary/75" />
           <span className="h-3 w-3 rounded-sm bg-primary" />
-          <span>More</span>
+          <span>{t('statistics.more')}</span>
         </div>
       </CardContent>
     </Card>

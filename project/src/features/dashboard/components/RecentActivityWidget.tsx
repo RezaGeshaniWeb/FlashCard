@@ -1,14 +1,18 @@
+'use client';
+
 import { Activity } from 'lucide-react';
 import type { DailyActivity } from '@/types';
 import { formatDate } from '@/utils/dates';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { useT } from '@/i18n';
 
 export interface RecentActivityWidgetProps {
   activity: DailyActivity[];
 }
 
 export function RecentActivityWidget({ activity }: RecentActivityWidgetProps) {
+  const t = useT();
   const recent = [...activity]
     .filter((d) => d.reviews > 0)
     .slice(-7)
@@ -17,13 +21,13 @@ export function RecentActivityWidget({ activity }: RecentActivityWidgetProps) {
   return (
     <Card className="animate-slide-up">
       <CardHeader>
-        <CardTitle>Recent activity</CardTitle>
+        <CardTitle>{t('dashboard.recentActivity')}</CardTitle>
       </CardHeader>
       <CardContent>
         {recent.length === 0 ? (
           <EmptyState
-            title="No activity yet"
-            description="Your study history will appear here."
+            title={t('dashboard.noActivityYet')}
+            description={t('dashboard.activityHint')}
             icon={<Activity className="h-6 w-6" aria-hidden />}
             className="border-0 py-8"
           />
@@ -39,16 +43,21 @@ export function RecentActivityWidget({ activity }: RecentActivityWidgetProps) {
                     {formatDate(day.date, 'EEE, MMM d')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {day.studyMinutes} min studied
+                    {t('dashboard.minutesStudied', {
+                      minutes: day.studyMinutes,
+                    })}
                   </p>
                 </div>
-                <div className="text-right text-sm">
-                  <p className="font-medium tabular-nums">{day.reviews} reviews</p>
+                <div className="text-end text-sm">
+                  <p className="font-medium tabular-nums">
+                    {t('dashboard.reviewsCount', { count: day.reviews })}
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    {Math.round(
-                      day.accuracy * (day.accuracy <= 1 ? 100 : 1),
-                    )}
-                    % accuracy
+                    {t('dashboard.accuracyPercent', {
+                      percent: Math.round(
+                        day.accuracy * (day.accuracy <= 1 ? 100 : 1),
+                      ),
+                    })}
                   </p>
                 </div>
               </li>

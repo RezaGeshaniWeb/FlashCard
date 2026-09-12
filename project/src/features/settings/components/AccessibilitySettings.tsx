@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Switch } from '@/components/ui/Switch';
 import { Select } from '@/components/ui/Select';
+import { useT } from '@/i18n';
 
 const STORAGE_KEY = 'flashmaster_a11y';
 
@@ -39,6 +40,7 @@ function applyPrefs(prefs: A11yPrefs) {
 }
 
 export function AccessibilitySettings() {
+  const t = useT();
   const [prefs, setPrefs] = useState<A11yPrefs>(DEFAULTS);
 
   useEffect(() => {
@@ -60,39 +62,37 @@ export function AccessibilitySettings() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Accessibility</CardTitle>
-        <CardDescription>
-          Motion, text size, and contrast preferences (stored locally).
-        </CardDescription>
+        <CardTitle>{t('settings.a11yTitle')}</CardTitle>
+        <CardDescription>{t('settings.a11yDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <Switch
           checked={prefs.reducedMotion}
           onCheckedChange={(v) => update({ reducedMotion: v })}
-          label="Reduce motion"
-          description="Minimize animations and transitions"
+          label={t('settings.reduceMotion')}
+          description={t('settings.reduceMotionDesc')}
         />
         <Switch
           checked={prefs.largeText}
           onCheckedChange={(v) => update({ largeText: v })}
-          label="Larger text"
-          description="Increase base font size"
+          label={t('settings.largerText')}
+          description={t('settings.largerTextDesc')}
         />
         <Switch
           checked={prefs.highContrast}
           onCheckedChange={(v) => update({ highContrast: v })}
-          label="High contrast"
-          description="Strengthen borders and text contrast"
+          label={t('settings.highContrast')}
+          description={t('settings.highContrastDesc')}
         />
         <Select
-          label="Keyboard focus"
+          label={t('settings.keyboardFocus')}
           options={[
-            { value: 'default', label: 'Default focus ring' },
-            { value: 'strong', label: 'Strong focus ring' },
+            { value: 'default', label: t('settings.focusDefault') },
+            { value: 'strong', label: t('settings.focusStrong') },
           ]}
           value="default"
           onChange={() => undefined}
-          hint="Focus rings are always visible for keyboard users"
+          hint={t('settings.focusHint')}
         />
       </CardContent>
     </Card>

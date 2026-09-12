@@ -9,8 +9,10 @@ import { StreakCard } from './StreakCard';
 import { AchievementsList } from './AchievementsList';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useT } from '@/i18n';
 
 export function StatisticsView() {
+  const t = useT();
   const { stats, activity, isLoading, isError, refetch } = useStatistics();
 
   if (isLoading) {
@@ -28,19 +30,18 @@ export function StatisticsView() {
 
   if (isError || !stats) {
     return (
-      <ErrorState
-        title="Could not load statistics"
-        onRetry={refetch}
-      />
+      <ErrorState title={t('statistics.loadErrorTitle')} onRetry={refetch} />
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Statistics</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t('statistics.title')}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Track retention, streaks, and long-term progress.
+          {t('statistics.subtitle')}
         </p>
       </div>
 
